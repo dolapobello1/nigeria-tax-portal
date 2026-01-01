@@ -2,89 +2,181 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Nigeria Tax Filing 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nigeria Tax Filing System 2026 | Complete Filing Portal</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
-body { background:#0f172a; color:#f8fafc; font-family:'Plus Jakarta Sans', sans-serif; }
-.step { display:none; opacity:0; transition: opacity 0.3s ease; }
-.step.active { display:block; opacity:1; }
-input { background:#1e293b; color:white; padding:0.75rem; border-radius:0.5rem; width:100%; }
-button { transition:0.2s; }
-button:hover { opacity:0.85; }
-.step-header { font-size:1.25rem; font-weight:700; margin-bottom:1rem; }
-.review-box { background:#1e293b; padding:1rem; border-radius:1rem; }
-.progress { display:flex; gap:0.5rem; margin-bottom:1.5rem; }
-.progress-step { flex:1; height:0.5rem; background:#334155; border-radius:0.25rem; transition: all 0.3s; }
-.progress-step.active { background:#10b981; }
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: #f8fafc; overflow-x: hidden; }
+input, select, textarea { background: #0f172a !important; border: 1px solid #334155 !important; color: white; width: 100%; padding: 0.9rem; border-radius: 0.75rem; font-size: 0.875rem; transition:0.2s; }
+input:focus, select:focus, textarea:focus { border-color: #10b981 !important; box-shadow:0 0 20px rgba(16,185,129,0.2); outline:none; }
+input[type="checkbox"] { width: auto; }
+
+.glass { background: rgba(30,41,59,0.85); backdrop-filter: blur(25px); border:1px solid rgba(255,255,255,0.08); }
+.step-indicator { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
+.step { flex: 1; text-align: center; position: relative; }
+.step-circle { width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center; font-weight: bold; transition: 0.3s; background: #1e293b; border: 2px solid #334155; }
+.step-active .step-circle { background: #10b981; border-color: #10b981; color: #000; }
+.step-completed .step-circle { background: #059669; border-color: #059669; color: #fff; }
+.step-line { position: absolute; top: 20px; left: 50%; width: 100%; height: 2px; background: #334155; z-index: -1; }
+.step:last-child .step-line { display: none; }
+.step-completed .step-line { background: #10b981; }
+
+.btn-primary { background: #10b981; color: #000; padding: 0.75rem 2rem; border-radius: 0.75rem; font-weight: bold; transition: 0.3s; border: none; cursor: pointer; }
+.btn-primary:hover { background: #059669; transform: translateY(-2px); }
+.btn-secondary { background: #334155; color: #fff; padding: 0.75rem 2rem; border-radius: 0.75rem; font-weight: bold; transition: 0.3s; border: none; cursor: pointer; }
+.btn-secondary:hover { background: #475569; }
+
+.form-section { display: none; }
+.form-section.active { display: block; animation: fadeIn 0.3s; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.summary-card { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; }
+.warning-box { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-radius: 0.75rem; padding: 1rem; margin: 1rem 0; }
 </style>
 </head>
-<body class="p-8 max-w-4xl mx-auto">
+<body class="min-h-screen pb-12">
 
-<h1 class="text-4xl font-extrabold mb-6 text-center text-emerald-400">
-Nigeria Tax Filing 2026
-</h1>
-
-<div class="bg-slate-900 p-8 rounded-3xl shadow-xl space-y-6">
-
-  <!-- Progress Bar -->
-  <div class="progress">
-    <div id="prog1" class="progress-step active"></div>
-    <div id="prog2" class="progress-step"></div>
-    <div id="prog3" class="progress-step"></div>
-    <div id="prog4" class="progress-step"></div>
-  </div>
-
-  <!-- Save Draft -->
-  <div class="flex gap-3 mb-4 justify-end">
-    <button onclick="saveDraft()" class="bg-blue-500 px-4 py-2 rounded font-semibold">Save Draft</button>
-    <button onclick="clearDraft()" class="bg-red-500 px-4 py-2 rounded font-semibold">Clear Draft</button>
-  </div>
-
-  <!-- STEP 1: Income -->
-  <div id="step1" class="step active">
-    <div class="step-header">Income</div>
-    <input id="grossIncome" placeholder="Gross Income ₦">
-    <input id="otherIncome" placeholder="Other Income ₦" class="mt-3">
-    <div class="mt-4 flex justify-end">
-      <button onclick="nextStep()" class="bg-emerald-500 px-6 py-2 rounded font-bold text-black">Next</button>
+<nav class="p-6 flex justify-between items-center max-w-7xl mx-auto sticky top-0 z-50 bg-[#020617]/90 backdrop-blur-xl border-b border-white/5">
+    <div>
+        <h1 class="text-2xl font-black italic tracking-tighter uppercase">Nigeria <span class="text-emerald-500">TaxFiling</span></h1>
+        <p class="text-[9px] text-slate-500 font-bold tracking-widest uppercase">Powered by NTA 2025 • FIRS/SIRS Integration</p>
     </div>
-  </div>
-
-  <!-- STEP 2: Deductions -->
-  <div id="step2" class="step">
-    <div class="step-header">Deductions / Reliefs</div>
-    <input id="rentPaid" placeholder="Rent Paid ₦">
-    <input id="pensionNHF" placeholder="Pension + NHF ₦" class="mt-3">
-    <input id="otherDeductions" placeholder="Other allowable deductions ₦" class="mt-3">
-    <div class="mt-4 flex justify-between">
-      <button onclick="prevStep()" class="border px-4 py-2 rounded font-semibold">Back</button>
-      <button onclick="nextStep()" class="bg-emerald-500 px-6 py-2 rounded font-bold text-black">Next</button>
+    <div class="flex gap-4 items-center">
+        <button onclick="showHelp()" class="text-[10px] font-bold px-4 py-2 rounded-full border border-emerald-500/30 hover:bg-emerald-500 hover:text-black transition-all">
+            <i class="fa-solid fa-question-circle mr-1"></i> HELP
+        </button>
+        <button onclick="clearDraft()" class="text-[10px] font-bold px-4 py-2 rounded-full border border-red-500/30 hover:bg-red-500 hover:text-white transition-all">
+            <i class="fa-solid fa-redo mr-1"></i> RESTART
+        </button>
     </div>
-  </div>
+</nav>
 
-  <!-- STEP 3: Credits -->
-  <div id="step3" class="step">
-    <div class="step-header">Credits</div>
-    <input id="whtCredit" placeholder="WHT Credit ₦">
-    <div class="mt-4 flex justify-between">
-      <button onclick="prevStep()" class="border px-4 py-2 rounded font-semibold">Back</button>
-      <button onclick="nextStep()" class="bg-emerald-500 px-6 py-2 rounded font-bold text-black">Review</button>
+<main class="max-w-6xl mx-auto p-6 mt-4">
+    
+    <!-- Progress Indicator -->
+    <div class="glass p-6 rounded-2xl mb-6">
+        <div class="step-indicator" id="stepIndicator">
+            <div class="step step-active" data-step="1">
+                <div class="step-circle">1</div>
+                <div class="text-xs font-bold">Taxpayer Info</div>
+                <div class="step-line"></div>
+            </div>
+            <div class="step" data-step="2">
+                <div class="step-circle">2</div>
+                <div class="text-xs font-bold">Income</div>
+                <div class="step-line"></div>
+            </div>
+            <div class="step" data-step="3">
+                <div class="step-circle">3</div>
+                <div class="text-xs font-bold">Deductions</div>
+                <div class="step-line"></div>
+            </div>
+            <div class="step" data-step="4">
+                <div class="step-circle">4</div>
+                <div class="text-xs font-bold">Review & File</div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- STEP 4: Review & PDF -->
-  <div id="step4" class="step">
-    <div class="step-header">Review Your Filing</div>
-    <div id="review" class="review-box space-y-2 text-sm"></div>
-    <div class="mt-6 flex justify-between">
-      <button onclick="prevStep()" class="border px-4 py-2 rounded font-semibold">Back</button>
-      <button onclick="generatePDF(window.__taxResult)" class="bg-purple-500 px-6 py-3 rounded font-bold">
-        Download PDF
-      </button>
+    <div class="glass p-10 rounded-3xl">
+
+        <!-- STEP 1: Taxpayer Info -->
+        <div id="step1" class="form-section active">
+            <h2 class="text-3xl font-black mb-2">Taxpayer Information</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase block mb-2">Taxpayer Type</label>
+                    <select id="taxpayerType" onchange="updateTaxpayerType()">
+                        <option value="individual">Individual</option>
+                        <option value="company">Company</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase block mb-2">Full Name / Company</label>
+                    <input type="text" id="fullName" placeholder="Enter full name or company name">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase block mb-2">TIN / UTIN</label>
+                    <input type="text" id="tin" placeholder="Enter TIN">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase block mb-2">Tax Year</label>
+                    <select id="taxYear">
+                        <option value="2026">2026</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex justify-end gap-4 mt-6">
+                <button class="btn-primary" onclick="nextStep(1)">Next</button>
+            </div>
+        </div>
+
+        <!-- STEP 2: Income -->
+        <div id="step2" class="form-section">
+            <h2 class="text-3xl font-black mb-2">Income Details</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label>Gross Salary (₦)</label>
+                    <input type="number" id="grossIncome" value="0" oninput="calculatePreview()">
+                </div>
+                <div>
+                    <label>Other Income (₦)</label>
+                    <input type="number" id="otherIncome" value="0" oninput="calculatePreview()">
+                </div>
+            </div>
+            <div class="summary-card mt-6">
+                <h4 class="font-bold text-emerald-500 mb-2">Total Income</h4>
+                <p class="text-3xl font-black" id="totalIncome">₦0.00</p>
+            </div>
+            <div class="flex justify-between gap-4 mt-6">
+                <button class="btn-secondary" onclick="prevStep(2)">Back</button>
+                <button class="btn-primary" onclick="nextStep(2)">Next</button>
+            </div>
+        </div>
+
+        <!-- STEP 3: Deductions -->
+        <div id="step3" class="form-section">
+            <h2 class="text-3xl font-black mb-2">Deductions & Relief</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label>Rent Paid (₦)</label>
+                    <input type="number" id="rentPaid" value="0" oninput="calculatePreview()">
+                </div>
+                <div>
+                    <label>Pension + NHF (₦)</label>
+                    <input type="number" id="pensionNHF" value="0" oninput="calculatePreview()">
+                </div>
+                <div>
+                    <label>Other Deductions (₦)</label>
+                    <input type="number" id="otherDeductions" value="0" oninput="calculatePreview()">
+                </div>
+            </div>
+            <div class="summary-card mt-6">
+                <h4 class="font-bold text-emerald-500 mb-2">Total Deductions</h4>
+                <p class="text-3xl font-black" id="totalDeductions">₦0.00</p>
+            </div>
+            <div class="flex justify-between gap-4 mt-6">
+                <button class="btn-secondary" onclick="prevStep(3)">Back</button>
+                <button class="btn-primary" onclick="nextStep(3)">Next</button>
+            </div>
+        </div>
+
+        <!-- STEP 4: Review & File -->
+        <div id="step4" class="form-section">
+            <h2 class="text-3xl font-black mb-2">Review & Download</h2>
+            <div id="review" class="summary-card space-y-2 text-sm"></div>
+            <div class="flex justify-between gap-4 mt-6">
+                <button class="btn-secondary" onclick="prevStep(4)">Back</button>
+                <button class="btn-primary" onclick="generatePDF(window.__taxResult)">Download PDF</button>
+            </div>
+        </div>
+
     </div>
-  </div>
-
-</div>
+</main>
 
 <script type="module" src="./assets/filingFlow.js"></script>
 <script type="module">
