@@ -5,59 +5,55 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nigeria Tax Filing 2026</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
-body { background:#020617; color:#f8fafc; font-family:system-ui; }
+body { font-family: system-ui; background:#020617; color:#f8fafc; }
 input, select { background:#0f172a; color:white; padding:0.75rem; border-radius:0.5rem; width:100%; text-align:center; }
 .form-section { display:none; }
 .form-section.active { display:block; }
-button { cursor:pointer; }
+button { cursor:pointer; margin-top: 0.5rem; }
 </style>
 </head>
-<body class="p-6 max-w-4xl mx-auto">
+<body class="p-6 max-w-xl mx-auto">
 
 <h1 class="text-3xl font-bold mb-6 text-center">Nigeria Tax Filing 2026</h1>
 
-<div class="bg-slate-900 p-8 rounded-2xl space-y-6">
+<div class="bg-slate-900 p-6 rounded-xl space-y-6">
 
-<!-- Landing / Stakeholder Toggle -->
+<!-- Step 0: Landing -->
 <div id="step0" class="form-section active">
-    <label>Select Stakeholder Type:</label>
+    <label class="mb-2 block">Stakeholder Type:</label>
     <select id="stakeholderType" onchange="updateStakeholderType()">
         <option value="individual">Individual</option>
         <option value="sme">SME</option>
         <option value="corporate">Corporate</option>
         <option value="nonresident">Non-Resident</option>
     </select>
-    <button onclick="nextStep(0)" class="bg-green-500 px-4 py-2 rounded mt-4">Start Filing</button>
+    <button onclick="nextStep()" class="bg-green-500 px-4 py-2 rounded w-full mt-4">Start Filing</button>
 </div>
 
-<!-- Step 1 -->
+<!-- Step 1: Basic Info -->
 <div id="step1" class="form-section">
-    <h2 class="text-xl font-bold mb-4">Basic Info</h2>
     <input type="text" id="fullName" class="stakeholder-field field-individual" placeholder="Full Name">
     <input type="text" id="companyName" class="stakeholder-field field-sme field-corporate" placeholder="Company Name">
     <div class="flex justify-between mt-4">
-        <button onclick="prevStep(1)" class="bg-gray-500 px-4 py-2 rounded">Back</button>
-        <button onclick="nextStep(1)" class="bg-green-500 px-4 py-2 rounded">Next</button>
+        <button onclick="prevStep()" class="bg-gray-500 px-4 py-2 rounded">Back</button>
+        <button onclick="nextStep()" class="bg-green-500 px-4 py-2 rounded">Next</button>
     </div>
 </div>
 
-<!-- Step 2 -->
+<!-- Step 2: Income -->
 <div id="step2" class="form-section">
-    <h2 class="text-xl font-bold mb-4">Income</h2>
     <input type="number" id="grossSalary" class="stakeholder-field field-individual" placeholder="Gross Salary" oninput="calculatePreview()">
     <input type="number" id="bonuses" class="stakeholder-field field-individual" placeholder="Bonuses" oninput="calculatePreview()">
     <input type="number" id="profit" class="stakeholder-field field-sme field-corporate" placeholder="Profit" oninput="calculatePreview()">
     <div class="flex justify-between mt-4">
-        <button onclick="prevStep(2)" class="bg-gray-500 px-4 py-2 rounded">Back</button>
-        <button onclick="nextStep(2)" class="bg-green-500 px-4 py-2 rounded">Next</button>
+        <button onclick="prevStep()" class="bg-gray-500 px-4 py-2 rounded">Back</button>
+        <button onclick="nextStep()" class="bg-green-500 px-4 py-2 rounded">Next</button>
     </div>
 </div>
 
-<!-- Step 3 -->
+<!-- Step 3: Deductions -->
 <div id="step3" class="form-section">
-    <h2 class="text-xl font-bold mb-4">Deductions</h2>
     <input type="number" id="rentPaid" placeholder="Rent Paid" oninput="calculatePreview()">
     <input type="number" id="pension" placeholder="Pension" oninput="calculatePreview()">
     <input type="number" id="nhf" placeholder="NHF" oninput="calculatePreview()">
@@ -65,21 +61,22 @@ button { cursor:pointer; }
     <input type="number" id="nhis" placeholder="NHIS" oninput="calculatePreview()">
     <label><input type="checkbox" id="lowIncome" onchange="calculatePreview()"> I earn ≤ ₦800,000</label>
     <div class="flex justify-between mt-4">
-        <button onclick="prevStep(3)" class="bg-gray-500 px-4 py-2 rounded">Back</button>
-        <button onclick="nextStep(3)" class="bg-green-500 px-4 py-2 rounded">Next</button>
+        <button onclick="prevStep()" class="bg-gray-500 px-4 py-2 rounded">Back</button>
+        <button onclick="nextStep()" class="bg-green-500 px-4 py-2 rounded">Next</button>
     </div>
 </div>
 
-<!-- Step 4 -->
+<!-- Step 4: Review -->
 <div id="step4" class="form-section">
-    <h2 class="text-xl font-bold mb-4">Review</h2>
     <div>Total Income: <span id="totalIncome">₦0</span></div>
     <div>Total Deductions: <span id="totalDeductions">₦0</span></div>
     <div>Taxable Income: <span id="review-taxable">₦0</span></div>
     <div>Total Tax: <span id="review-total">₦0</span></div>
     <div>Effective Rate: <span id="review-rate">0%</span></div>
-    <button onclick="prevStep(4)" class="bg-gray-500 px-4 py-2 rounded mt-4">Back</button>
-    <button onclick="generatePDF(window.__taxResult)" class="bg-purple-500 px-4 py-2 rounded mt-4">Download PDF</button>
+    <div class="flex justify-between mt-4">
+        <button onclick="prevStep()" class="bg-gray-500 px-4 py-2 rounded">Back</button>
+        <button onclick="generatePDF(window.__taxResult)" class="bg-purple-500 px-4 py-2 rounded">Download PDF</button>
+    </div>
 </div>
 
 </div>
