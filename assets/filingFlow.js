@@ -2,6 +2,28 @@
 window.currentStep = 1;
 const totalSteps = 4;
 
+// Save all input fields to localStorage
+function saveDraft() {
+  const data = {
+    grossIncome: document.getElementById("grossIncome")?.value || "",
+    otherIncome: document.getElementById("otherIncome")?.value || "",
+    rentPaid: document.getElementById("rentPaid")?.value || "",
+    pensionNHF: document.getElementById("pensionNHF")?.value || "",
+    whtCredit: document.getElementById("whtCredit")?.value || ""
+  };
+  localStorage.setItem("taxDraft", JSON.stringify(data));
+}
+
+// Restore saved draft
+function loadDraft() {
+  const saved = JSON.parse(localStorage.getItem("taxDraft") || "{}");
+  if (!saved) return;
+  for (const key in saved) {
+    const el = document.getElementById(key);
+    if (el) el.value = saved[key];
+  }
+}
+
 // Show only active step
 window.showStep = function(step) {
   for (let i = 1; i <= totalSteps; i++) {
@@ -18,6 +40,7 @@ window.nextStep = function() {
     window.showStep(window.currentStep);
     if (window.currentStep === 4) populateReview();
   }
+  saveDraft();
 };
 
 window.prevStep = function() {
@@ -25,6 +48,7 @@ window.prevStep = function() {
     window.currentStep--;
     window.showStep(window.currentStep);
   }
+  saveDraft();
 };
 
 // Collect inputs and populate review
@@ -57,7 +81,14 @@ function populateReview() {
   `;
 }
 
+// Clear draft button
+window.clearDraft = function() {
+  localStorage.removeItem("taxDraft");
+  alert("Draft cleared!");
+};
+
 // Initialize
 window.addEventListener("DOMContentLoaded", () => {
+  loadDraft();
   window.showStep(window.currentStep);
 });
