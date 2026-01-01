@@ -6,13 +6,16 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 body { background:#0f172a; color:#f8fafc; font-family:'Plus Jakarta Sans', sans-serif; }
-.step { display:none; }
-.step.active { display:block; }
+.step { display:none; opacity:0; transition: opacity 0.3s ease; }
+.step.active { display:block; opacity:1; }
 input { background:#1e293b; color:white; padding:0.75rem; border-radius:0.5rem; width:100%; }
 button { transition:0.2s; }
 button:hover { opacity:0.85; }
 .step-header { font-size:1.25rem; font-weight:700; margin-bottom:1rem; }
 .review-box { background:#1e293b; padding:1rem; border-radius:1rem; }
+.progress { display:flex; gap:0.5rem; margin-bottom:1.5rem; }
+.progress-step { flex:1; height:0.5rem; background:#334155; border-radius:0.25rem; transition: all 0.3s; }
+.progress-step.active { background:#10b981; }
 </style>
 </head>
 <body class="p-8 max-w-4xl mx-auto">
@@ -22,6 +25,14 @@ Nigeria Tax Filing 2026
 </h1>
 
 <div class="bg-slate-900 p-8 rounded-3xl shadow-xl space-y-6">
+
+  <!-- Progress Bar -->
+  <div class="progress">
+    <div id="prog1" class="progress-step active"></div>
+    <div id="prog2" class="progress-step"></div>
+    <div id="prog3" class="progress-step"></div>
+    <div id="prog4" class="progress-step"></div>
+  </div>
 
   <!-- Save Draft -->
   <div class="flex gap-3 mb-4 justify-end">
@@ -78,7 +89,7 @@ Nigeria Tax Filing 2026
 <script type="module" src="./assets/filingFlow.js"></script>
 <script type="module">
 import { generatePDF } from './assets/pdfGenerator.js';
-window.generatePDF = generatePDF; // attach globally
+window.generatePDF = generatePDF;
 </script>
 </body>
 </html>
