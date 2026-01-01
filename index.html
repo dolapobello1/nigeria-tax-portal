@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nigeria TaxCalculator 2026 | Unified Statutory Engine</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap');
+
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: #f8fafc; overflow-x: hidden; }
+input, select { background: #0f172a !important; border: 1px solid #334155 !important; color: white; width: 100%; padding: 0.9rem; border-radius: 0.75rem; font-size: 0.875rem; text-align:center; transition:0.2s; }
+input:focus, select:focus { border-color: #10b981 !important; box-shadow:0 0 20px rgba(16,185,129,0.2); outline:none; }
+
+.glass { background: rgba(30,41,59,0.85); backdrop-filter: blur(25px); border:1px solid rgba(255,255,255,0.08); }
+.terminal { font-family: 'Fira Code', monospace; background:#0f172a; color:#d1fae5; border:1px solid #10b98120; }
+.tab-btn { transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
+.tab-active { color:#10b981; border-bottom:3px solid #10b981; font-weight:800; transform:translateY(-2px); }
+.scroll-custom::-webkit-scrollbar{width:4px;}
+.scroll-custom::-webkit-scrollbar-thumb{background:#1e293b;border-radius:10px;}
+
+.wiki-panel{ transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.4,0,0.2,1); z-index:100;}
+.wiki-open{ transform: translateX(0); }
+
+.badge{ display:inline-flex; align-items:center; gap:0.3rem; padding:0.25rem 0.6rem; border-radius:0.5rem; font-size:0.75rem; font-weight:700; cursor:default; color:white; }
+.badge.bg-emerald-500{ background:#10b981; } /* PIT / Base tax */
+.badge.bg-blue-500{ background:#3b82f6; }    /* Rent / Dev levy */
+.badge.bg-purple-500{ background:#8b5cf6; }  /* Pension/NHF */
+.tooltiptext{ position:absolute; background:#1e293b; color:#f1f5f9; padding:0.4rem 0.6rem; border-radius:0.5rem; font-size:0.75rem; opacity:0; transition:0.2s; white-space:nowrap; }
+
+.sticky-banner{ position:sticky; top:0; z-index:50; background:linear-gradient(to right,#334155,#1e293b); color:#e2e8f0; padding:0.5rem 1rem; font-size:0.85rem; display:flex; justify-content:space-between; align-items:center; transition:0.3s; }
+.sticky-banner.shrink{ box-shadow:0 4px 12px rgba(0,0,0,0.3); padding:0.25rem 1rem; }
+.sticky-banner .collapse-btn{ cursor:pointer; font-weight:bold; color:#f1f5f9; transition:0.2s; }
+
+.collapsible{ width:100%; text-align:left; background-color:#3498db; color:white; border:none; padding:10px; font-size:1em; cursor:pointer; margin-top:10px; border-radius:0.75rem; }
+.collapsible:hover{ background-color:#3b82f6; }
+.content{ padding:10px; display:none; background-color:#ecf0f1; color:#020617; border-left:3px solid #3498db; border-radius:0.5rem; }
+</style>
+</head>
+<body class="min-h-screen pb-12">
+
+<!-- Sticky Banner -->
+<div id="stickyBanner" class="sticky-banner">
+  <div>Created by <strong>Oladolapo Bello</strong> | For educational purposes only. Not legal or financial advice.</div>
+  <div class="collapse-btn" onclick="toggleBanner()">&#x25B2;</div>
+</div>
+
+<nav class="p-6 flex justify-between items-center max-w-7xl mx-auto sticky top-12 z-50 bg-[#020617]/90 backdrop-blur-xl border-b border-white/5">
+    <div>
+        <h1 class="text-2xl font-black italic tracking-tighter uppercase">Nigeria <span class="text-emerald-500">TaxPortal</span></h1>
+        <p class="text-[9px] text-slate-500 font-bold tracking-widest uppercase">All Rights Reserved 2026 • V1</p>
+    </div>
+    <button onclick="toggleWiki()" class="text-[10px] font-bold px-6 py-2.5 rounded-full border border-emerald-500/30 hover:bg-emerald-500 hover:text-black transition-all">
+        <i class="fa-solid fa-book-open mr-2"></i> STATUTORY WIKI
+    </button>
+</nav>
+
+<main class="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 mt-4">
+
+  <!-- INPUTS LEFT -->
+  <section class="lg:col-span-6 space-y-6">
+      <div class="glass p-8 rounded-[2.5rem] shadow-2xl">
+          <div class="flex gap-4 mb-8 text-[10px] font-bold uppercase tracking-widest border-b border-white/5 overflow-x-auto pb-3 scroll-custom">
+              <button onclick="setMode('ind')" id="t-ind" class="tab-btn tab-active whitespace-nowrap">Resident Ind.</button>
+              <button onclick="setMode('corp')" id="t-corp" class="tab-btn text-slate-500 whitespace-nowrap">SME / Corporate</button>
+              <button onclick="setMode('mne')" id="t-mne" class="tab-btn text-slate-500 whitespace-nowrap">MNE / Pillar 2</button>
+              <button onclick="setMode('spec')" id="t-spec" class="tab-btn text-slate-500 whitespace-nowrap">Special Regimes</button>
+          </div>
+
+          <div id="dynamicInputs" class="space-y-4 max-h-[550px] overflow-y-auto pr-3 scroll-custom"></div>
+      </div>
+  </section>
+
+  <!-- TAX / DEDUCTIONS RIGHT -->
+  <section class="lg:col-span-6 space-y-6 flex flex-col justify-start">
+      <div class="glass p-10 rounded-[3rem] border-t-4 border-emerald-500 shadow-2xl relative overflow-hidden">
+          <header class="flex justify-between items-start mb-8">
+              <div>
+                  <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Statutory Liability (₦)</p>
+                  <p id="totalTax" class="text-5xl font-black text-white tracking-tighter">₦0.00</p>
+              </div>
+              <div class="text-right">
+                  <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Monthly Take-home</p>
+                  <p id="netHome" class="text-4xl font-bold text-purple-400">₦0.00</p>
+                  <p class="text-[10px] font-bold text-slate-400 mt-1">Effective Tax Rate: <span id="effRate">0%</span></p>
+              </div>
+          </header>
+
+          <div id="deductionsLog" class="flex flex-wrap gap-2 mt-6"></div>
+      </div>
+  </section>
+</main>
+
+<!-- Wiki Panel -->
+<div id="wikiPanel" class="fixed top-0 right-0 h-full w-full md:w-[650px] glass wiki-panel shadow-[-50px_0_100px_rgba(0,0,0,0.8)] p-10 flex flex-col">
+    <div class="flex justify-between items-center mb-10">
+        <h2 class="text-3xl font-black uppercase italic tracking-tighter">Statutory <span class="text-emerald-500">Wiki</span></h2>
+        <button onclick="toggleWiki()" class="text-4xl text-slate-500 hover:text-white transition-all">&times;</button>
+    </div>
+    <div id="wikiContent" class="flex-1 overflow-y-auto pr-4 scroll-custom space-y-8">
+      <!-- Detailed Wiki Content inserted via JS -->
+    </div>
+</div>
+
+<script>
+let currentMode='ind';
+
+const WIKI=[
+  {t:"📌 NTA 2025 Overview", d:"The Nigeria Tax Act (NTA) 2025 consolidates previous tax laws into a single modern framework effective 2026. Simplifies compliance, broadens tax base, and centralizes administration under NRS."},
+  {t:"👤 Personal Income Tax (PIT)", d:"Covers all residents. Annual income ≤ ₦800,000 fully exempt. Rent relief: 20% of rent paid (max ₦500,000). Pension/NHF contributions deductible. Includes salaries, bonuses, capital gains, and digital asset gains."},
+  {t:"🏢 Corporate Income Tax (CIT)", d:"Small companies (≤₦50M turnover, ≤₦250M assets) exempt from CIT. Standard rate 25–30% for other companies. Development levy 4% on assessable profits. Capital gains taxed at CIT rate."},
+  {t:"🌐 MNE / Pillar 2", d:"MNE constituents or firms with ₦20B+ turnover must meet 15% ETR. Top-up tax calculated on excess profit (PBT – 5% of depreciation + personnel costs)."},
+  {t:"🧾 Withholding Taxes", d:"WHT applies on dividends, royalties, service fees, and interest. Short-term interest: 10% WHT. Digital income also included."},
+  {t:"📊 Exemptions & Compliance", d:"Individuals ≤ ₦800,000 exempt. VAT zero-rated essentials. Mandatory UTIN, e-filing, and digital reporting. Levies consolidated."},
+  {t:"📈 Effective Tax Rate", d:"ETR = Total tax / Taxable income. For MNEs, top-up ensures minimum 15% ETR."}
+];
+
+function setMode(m){
+    currentMode=m;
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('tab-active','text-slate-500'));
+    document.getElementById(`t-${m}`).classList.add('tab-active');
+    render(); calc();
+}
+
+function render(){
+  const c=document.getElementById('dynamicInputs');
+  if(currentMode==='ind'){
+      c.innerHTML=`
+      <label class="text-[10px] font-bold text-slate-500 uppercase">Gross Annual Income (₦)</label><input type="number" id="v1" value="12000000" oninput="calc()">
+      <label class="text-[10px] font-bold text-slate-500 uppercase">Annual Rent Paid (₦)</label><input type="number" id="v2" value="2000000" oninput="calc()">
+      <label class="text-[10px] font-bold text-slate-500 uppercase">Pension (8%) / NHF (2.5%) (₦)</label><input type="number" id="v3" value="1260000" oninput="calc()">
+      <label class="text-[10px] font-bold text-slate-500 uppercase">Integrated Gains (Shares/Crypto) (₦)</label><input type="number" id="v4" value="0" oninput="calc()">
+      `;
+  } else if(currentMode==='corp'){
+      c.innerHTML=`
+      <label class="text-[10px] font-bold text-slate-500 uppercase">Annual Turnover (₦)</label><input type="number" id="v1" value="150000000" oninput="calc()">
+      <label class="text-[10px] font-bold text-slate-500 uppercase">Assessable Profit (₦)</label><input type="number" id="v2" value="30000000" oninput="calc()">
+      <label class="text-[10px] font-bold text-slate-500 uppercase">Total Fixed Assets (₦)</label><input type="number" id="v3" value="300000000" oninput="calc()">
+      `;
+  } else if(currentMode==='mne'){
+      c.innerHTML=`
+      <label class="text-[10px] font-bold text-slate-500 uppercase">Group Global Turnover (₦)</label><input type="number" id="v1" value="60000000000" oninput="calc()">
+      <label class="text-[10px] font-bold text-slate-500 uppercase">Local Profit Before Tax (₦)</label><input type="number" id="v2" value="5000000000" oninput="calc()">
+      <label class="text-[10px] font-bold text-slate-500 uppercase">Sum (Depreciation + Personnel) (₦)</label><input type="number" id="v3" value="500000000" oninput="calc()">
+      `;
+  } else{
+      c.innerHTML=`
+      <label class="text-[10px] font-bold text-slate-500 uppercase">Stakeholder Type</label>
+      <select id="vType" onchange="calc()">
+        <option value="agric">Agricultural (Crop/Dairy)</option>
+        <option value="nr_sep">Non-Resident (Digital/SEP)</option>
+        <option value="trust">Trust / Estate</option>
+      </select>
+      <label class="text-[10px] font-bold text-slate-500 uppercase">Relevant Amount (₦)</label><input type="number" id="v1" value="50000000" oninput="calc()">
+      `;
+  }
+}
+
+function calc(){
+  const v1=parseFloat(document.getElementById('v1')?.value)||0;
+  const v2=parseFloat(document.getElementById('v2')?.value)||0;
+  const v3=parseFloat(document.getElementById('v3')?.value)||0;
+  const v4=parseFloat(document.getElementById('v4')?.value)||0;
+
+  let total=0, base=0, levy=0, relief=0, netM=0, logItems=[];
+
+  if(currentMode==='ind'){
+      relief=800000+Math.min(v2*0.20,500000);
+      const taxable=Math.max(0,(v1+v4)-relief-v3);
+      const bands=[[2200000,0.15],[9000000,0.18],[13000000,0.21],[25000000,0.23],[Infinity,0.25]];
+      let rem=taxable;
+      bands.forEach(b=>{ if(rem>0){ let ck=Math.min(rem,b[0]); base+=ck*b[1]; rem-=ck; }});
+      total=base;
+      netM=(v1-total-v3)/12;
+      logItems=[
+        {label:'PIT Base', val:base, color:'emerald'},
+        {label:'Rent Relief', val:Math.min(v2*0.2,500000), color:'blue'},
+        {label:'Pension/NHF', val:v3, color:'purple'}
+      ];
+  } else if(currentMode==='corp'){
+      const isSmall=v1<=50000000 && v3<=250000000;
+      if(!isSmall){ base=v2*0.30; levy=v2*0.04; }
+      total=base+levy;
+      netM=0;
+      logItems=[
+        {label:'CIT', val:base, color:'emerald'},
+        {label:'Dev Levy', val:levy, color:'blue'}
+      ];
+  } else if(currentMode==='mne'){
+      base=v2*0.30; levy=v2*0.04;
+      const actualTax=base+levy;
+      const eProfit=v2-0.05*v3;
+      const currentETR=actualTax/v2;
+      let topup=0;
+      if(currentETR<0.15){ topup=(eProfit*0.15)-actualTax; total=actualTax+Math.max(0,topup); }
+      else total=actualTax;
+      logItems=[
+        {label:'CIT Base', val:base, color:'emerald'},
+        {label:'Dev Levy', val:levy, color:'blue'},
+        {label:'Top-up', val:topup, color:'purple'}
+      ];
+      netM=0;
+  } else{
+      const type=document.getElementById('vType').value;
+      if(type==='agric'){ total=0; logItems=[{label:'Agric Exemption', val:v1, color:'emerald'}]; netM=0; }
+      else if(type==='nr_sep'){ total=v1*0.04; logItems=[{label:'SEP Tax', val:total, color:'blue'}]; netM=0; }
+      else{ total=v1*0.25; logItems=[{label:'Trustee Tax', val:total, color:'purple'}]; netM=0; }
+  }
+
+  const effRate=v1?Math.min(100,(total/(v1||1)*100)).toFixed(2):0;
+
+  document.getElementById('totalTax').innerText=`₦${total.toLocaleString()}`;
+  document.getElementById('netHome').innerText=netM>0?`₦${Math.round(netM).toLocaleString()}`:"--";
+  document.getElementById('effRate').innerText=`${effRate}%`;
+
+  const logDiv=document.getElementById('deductionsLog');
+  logDiv.innerHTML=logItems.map(item=>`<span class="badge bg-${item.color}-500" title="${item.label}: ₦${item.val.toLocaleString()}">${item.label}: ₦${item.val.toLocaleString()}</span>`).join('');
+}
+
+function toggleWiki(){document.getElementById('wikiPanel').classList.toggle('wiki-open');}
+function toggleBanner(){document.getElementById('stickyBanner').classList.toggle('shrink');}
+
+window.onload=()=>{
+    render(); calc();
+    document.getElementById('wikiContent').innerHTML=WIKI.map(w=>{
+      return `<div class="p-6 border border-white/5 rounded-2xl bg-white/[0.02]">
+        <h4 class="text-emerald-500 font-black text-xs uppercase mb-2">${w.t}</h4>
+        <p class="text-slate-400 text-sm leading-relaxed">${w.d}</p>
+      </div>`;
+    }).join('');
+
+    // Collapsible sections for wiki
+    const collapsibles=document.querySelectorAll('.wiki-panel .collapsible');
+    collapsibles.forEach(btn=>{
+        btn.addEventListener('click', function(){
+            this.classList.toggle('active');
+            const content=this.nextElementSibling;
+            if(content.style.display==="block"){ content.style.display="none"; }
+            else{ content.style.display="block"; }
+        });
+    });
+};
+</script>
+
+</body>
+</html>
