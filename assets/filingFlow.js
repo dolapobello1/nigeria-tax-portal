@@ -1,8 +1,7 @@
-// Track current step
 window.currentStep = 1;
 const totalSteps = 4;
 
-// Save all input fields to localStorage
+// Save form to localStorage
 function saveDraft() {
   const data = {
     grossIncome: document.getElementById("grossIncome")?.value || "",
@@ -12,19 +11,26 @@ function saveDraft() {
     whtCredit: document.getElementById("whtCredit")?.value || ""
   };
   localStorage.setItem("taxDraft", JSON.stringify(data));
+  alert("Draft saved!");
 }
 
-// Restore saved draft
+// Load saved draft
 function loadDraft() {
   const saved = JSON.parse(localStorage.getItem("taxDraft") || "{}");
   if (!saved) return;
-  for (const key in saved) {
+  Object.keys(saved).forEach(key => {
     const el = document.getElementById(key);
     if (el) el.value = saved[key];
-  }
+  });
 }
 
-// Show only active step
+// Clear draft
+window.clearDraft = function() {
+  localStorage.removeItem("taxDraft");
+  alert("Draft cleared!");
+};
+
+// Show active step
 window.showStep = function(step) {
   for (let i = 1; i <= totalSteps; i++) {
     const el = document.getElementById(`step${i}`);
@@ -51,7 +57,7 @@ window.prevStep = function() {
   saveDraft();
 };
 
-// Collect inputs and populate review
+// Populate Review
 function populateReview() {
   const grossIncome = parseFloat(document.getElementById("grossIncome")?.value) || 0;
   const otherIncome = parseFloat(document.getElementById("otherIncome")?.value) || 0;
@@ -80,12 +86,6 @@ function populateReview() {
     <p class="mt-2 font-bold"><strong>Net Taxable Income:</strong> ₦${window.__taxResult.netTaxable.toLocaleString()}</p>
   `;
 }
-
-// Clear draft button
-window.clearDraft = function() {
-  localStorage.removeItem("taxDraft");
-  alert("Draft cleared!");
-};
 
 // Initialize
 window.addEventListener("DOMContentLoaded", () => {
