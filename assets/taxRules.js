@@ -1,7 +1,7 @@
 // assets/taxRules.js
 import { CRA, MAX_RENT_RELIEF, PIT_BANDS, SME_TAX_RATE, CORPORATE_TAX_RATE } from './constants.js';
 
-// Calculate deductions for individuals
+// Calculate deductions
 export function calculateDeductions({ rentPaid, pension, nhf, insurance, nhis, lowIncome }) {
     const rentRelief = Math.min(rentPaid * 0.2, MAX_RENT_RELIEF);
 
@@ -11,7 +11,7 @@ export function calculateDeductions({ rentPaid, pension, nhf, insurance, nhis, l
     return { rentRelief, pension, nhf, insurance, nhis, total };
 }
 
-// Calculate Personal Income Tax
+// Calculate PIT for individuals
 export function calculatePIT(income, deductions, lowIncome) {
     if (lowIncome || income <= CRA) return 0;
 
@@ -30,7 +30,7 @@ export function calculatePIT(income, deductions, lowIncome) {
     return Math.round(tax);
 }
 
-// SME / Corporate Tax
+// Calculate SME/Corporate tax
 export function calculateCorporateTax(profit, stakeholderType) {
     if (stakeholderType === 'sme' || stakeholderType === 'corporate') {
         return Math.round(profit * SME_TAX_RATE);
