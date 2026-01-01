@@ -1,26 +1,39 @@
-export const TAX_RULES = {
-  individual: {
-    pitBands: [
-      { upTo: 300000, rate: 0.07 },
-      { upTo: 600000, rate: 0.11 },
-      { upTo: 1100000, rate: 0.15 },
-      { upTo: 1600000, rate: 0.19 },
-      { upTo: 3200000, rate: 0.21 },
-      { upTo: Infinity, rate: 0.24 },
-    ],
-    reliefs: {
-      rent: { percent: 0.2, max: 500000 },
-      pension: 0.08,
-      nhf: 0.025,
-      nhis: 0.05,
-      insurance: 200000,
-      lowIncomeExemption: 800000
+// assets/taxRules.js
+import { CRA, MAX_RENT_RELIEF, PIT_BANDS, SME_TAX_RATE, CORPORATE_TAX_RATE } from './constants.js';
+
+// Calculate deductions for individuals
+export function calculateDeductions({ rentPaid, pension, nhf, insurance, nhis, lowIncome }) {
+    const rentRelief = Math.min(rentPaid * 0.2, MAX_RENT_RELIEF);
+
+    if (lowIncome) return { rentRelief, pension: 0, nhf: 0, insurance: 0, nhis: 0, total: 0 };
+
+    const total = rentRelief + pension + nhf + insurance + nhis;
+    return { rentRelief, pension, nhf, insurance, nhis, total };
+}
+
+// Calculate Personal Income Tax
+export function calculatePIT(income, deductions, lowIncome) {
+    if (lowIncome || income <= CRA) return 0;
+
+    let taxable = income - deductions.total - CRA;
+    let remaining = taxable;
+    let tax = 0;
+    let lowerLimit = 0;
+
+    for (const [upperLimit, rate] of PIT_BANDS) {
+        const taxableAtBand = Math.min(remaining, upperLimit - lowerLimit);
+        tax += taxableAtBand * rate;
+        remaining -= taxableAtBand;
+        lowerLimit = upperLimit;
+        if (remaining <= 0) break;
     }
-  },
-  sme: {
-    flatRate: 0.20 // 20% of assessable profit
-  },
-  mne: {
-    corporateRate: 0.30
-  }
-};
+    return Math.round(tax);
+}
+
+// SME / Corporate Tax
+export function calculateCorporateTax(profit, stakeholderType) {
+    if (stakeholderType === 'sme' || stakeholderType === 'corporate') {
+        return Math.round(profit * SME_TAX_RATE);
+    }
+    return 0;
+}
