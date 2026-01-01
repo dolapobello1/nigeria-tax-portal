@@ -3,98 +3,120 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nigeria Tax Filing 2026 | Portal</title>
+<title>Nigeria Tax Filing 2026 | Complete Portal</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
 <style>
-body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: #f8fafc; }
-h1,h2 { text-align:center; }
-input, select { background: #0f172a !important; border: 1px solid #334155 !important; color: white; width: 100%; padding:0.75rem; border-radius:0.75rem; font-size:0.875rem; display:block; margin:auto; text-align:center; }
-button { cursor:pointer; transition:0.3s; }
-.btn-primary { background:#10b981; color:#000; padding:0.75rem 2rem; border-radius:0.75rem; font-weight:bold; border:none; margin:auto; display:block; }
-.btn-primary:hover { background:#059669; }
-.btn-secondary { background:#334155; color:#fff; padding:0.75rem 2rem; border-radius:0.75rem; font-weight:bold; border:none; margin:auto; display:block; }
-.btn-secondary:hover { background:#475569; }
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap');
+
+body { font-family: 'Plus Jakarta Sans', sans-serif; background:#020617; color:#f8fafc; }
+input, select { background:#0f172a !important; border:1px solid #334155 !important; color:white; width:100%; padding:0.9rem; border-radius:0.75rem; font-size:0.875rem; margin-bottom:0.5rem; }
+input:focus, select:focus { border-color:#10b981; box-shadow:0 0 20px rgba(16,185,129,0.2); outline:none; }
+input[type="checkbox"] { width:auto; }
+
 .step { display:none; }
-.step.active { display:block; animation: fadeIn 0.3s; max-width:500px; margin:auto; }
-@keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
-.summary-card { background: rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:1rem; padding:1rem; margin:1rem 0; text-align:center; }
+.step.active { display:block; }
+button { cursor:pointer; transition:0.3s; }
+
+.glass { background: rgba(30,41,59,0.85); backdrop-filter: blur(25px); border:1px solid rgba(255,255,255,0.08); padding:2rem; border-radius:1.5rem; margin-bottom:2rem; }
+.btn-primary { background:#10b981; color:#000; padding:0.75rem 2rem; border-radius:0.75rem; font-weight:bold; border:none; }
+.btn-primary:hover { background:#059669; }
+.btn-secondary { background:#334155; color:#fff; padding:0.75rem 2rem; border-radius:0.75rem; font-weight:bold; border:none; }
+.btn-secondary:hover { background:#475569; }
+
+.summary-card { background: rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:1rem; padding:1.5rem; margin-bottom:1rem; }
+.form-section { display:none; max-width:700px; margin:auto; }
+.form-section.active { display:block; }
+.centered { display:flex; flex-direction:column; align-items:center; }
 </style>
 </head>
-<body class="p-6">
 
-<h1 class="text-3xl font-black mb-6">Nigeria Tax Filing 2026</h1>
+<body class="min-h-screen pb-12">
 
-<!-- Step 0: Stakeholder Selection -->
-<div id="step0" class="step active">
-    <h2 class="text-2xl font-bold mb-4">Select Your Stakeholder Type</h2>
-    <div class="flex justify-center gap-4">
-        <button class="btn-primary" onclick="setStakeholder('individual')">Individual</button>
-        <button class="btn-primary" onclick="setStakeholder('sme')">SME</button>
-        <button class="btn-primary" onclick="setStakeholder('corporate')">Corporate</button>
+<main class="max-w-4xl mx-auto p-6 mt-4">
+
+<h1 class="text-3xl font-black mb-6 text-center">Nigeria Tax Filing <span class="text-emerald-400">2026</span></h1>
+
+<!-- Stakeholder Selection -->
+<div class="glass centered mb-6">
+    <h2 class="font-bold mb-4 text-lg">Select Stakeholder Type</h2>
+    <div class="flex gap-4">
+        <button class="btn-primary" onclick="setStakeholder('individual'); showStep(2)">Individual</button>
+        <button class="btn-primary" onclick="setStakeholder('sme'); showStep(2)">SME</button>
+        <button class="btn-primary" onclick="setStakeholder('mne'); showStep(2)">Multinational</button>
     </div>
 </div>
 
-<!-- STEP 1: Basic Info -->
-<div id="step1" class="step">
-    <h2 class="text-2xl font-bold mb-4">Taxpayer Information</h2>
-    <div class="grid gap-4">
-        <input type="text" id="name" placeholder="Full Name / Company Name">
-        <input type="text" id="tin" placeholder="TIN / UTIN">
-        <select id="taxYear">
-            <option value="2026">2026</option>
-            <option value="2025">2025</option>
-        </select>
-        <select id="filingState">
-            <option value="lagos">Lagos</option>
-            <option value="abuja">FCT</option>
-            <option value="rivers">Rivers</option>
-            <option value="other">Other</option>
-        </select>
-    </div>
-    <div class="mt-4 flex justify-between gap-4">
-        <button class="btn-secondary" onclick="prevStep()">Back</button>
-        <button class="btn-primary" onclick="nextStep()">Next</button>
-    </div>
-</div>
+<!-- STEP 2: Income & Deductions -->
+<div id="step2" class="form-section centered active">
 
-<!-- STEP 2: Income -->
-<div id="step2" class="step">
-    <h2 class="text-2xl font-bold mb-4">Income Details</h2>
-    <div id="incomeInputs"></div>
+    <h2 class="text-2xl font-bold mb-4 text-center">Income & Deductions</h2>
+
+    <!-- Individual Income -->
+    <div id="individualIncome" class="space-y-4 w-full max-w-md">
+        <input type="number" id="grossSalary" placeholder="Gross Salary ₦" value="0" oninput="calculatePreview()">
+        <input type="number" id="bonuses" placeholder="Bonuses & Allowances ₦" value="0" oninput="calculatePreview()">
+        <input type="number" id="businessIncome" placeholder="Business Income ₦" value="0" oninput="calculatePreview()">
+        <input type="number" id="investmentIncome" placeholder="Investment Income ₦" value="0" oninput="calculatePreview()">
+        <input type="number" id="capitalGains" placeholder="Capital Gains ₦" value="0" oninput="calculatePreview()">
+        <input type="number" id="otherIncome" placeholder="Other Income ₦" value="0" oninput="calculatePreview()">
+    </div>
+
+    <!-- Company/SME Income -->
+    <div id="companyIncome" class="space-y-4 w-full max-w-md" style="display:none;">
+        <input type="number" id="profit" placeholder="Assessable Profit ₦" value="0" oninput="calculatePreview()">
+    </div>
+
+    <!-- Deductions -->
+    <div class="mt-6 space-y-2 w-full max-w-md">
+        <input type="number" id="rentPaid" placeholder="Rent Paid ₦" value="0" oninput="calculatePreview()">
+        <input type="number" id="pension" placeholder="Pension ₦" value="0" oninput="calculatePreview()">
+        <input type="number" id="nhf" placeholder="NHF ₦" value="0" oninput="calculatePreview()">
+        <input type="number" id="insurance" placeholder="Life Insurance ₦" value="0" oninput="calculatePreview()">
+        <input type="number" id="nhis" placeholder="NHIS ₦" value="0" oninput="calculatePreview()">
+        <label><input type="checkbox" id="lowIncome" onchange="calculatePreview()"> I earn ≤ ₦800,000 annually (Full PIT Exemption)</label>
+    </div>
+
+    <!-- Summary -->
     <div class="summary-card">
-        <strong>Total Income:</strong> ₦<span id="totalIncome">0.00</span>
+        <p>Total Income: <span id="totalIncome">₦0.00</span></p>
+        <p>Total Deductions: <span id="totalDeductions">₦0.00</span></p>
     </div>
-    <div class="mt-4 flex justify-between gap-4">
+
+    <div class="flex gap-4 mt-4 justify-center">
         <button class="btn-secondary" onclick="prevStep()">Back</button>
         <button class="btn-primary" onclick="nextStep()">Next</button>
     </div>
+
 </div>
 
-<!-- STEP 3: Deductions -->
-<div id="step3" class="step">
-    <h2 class="text-2xl font-bold mb-4">Deductions & Reliefs</h2>
-    <div id="deductionInputs"></div>
-    <div class="summary-card">
-        <strong>Total Deductions:</strong> ₦<span id="totalDeductions">0.00</span>
-    </div>
-    <div class="mt-4 flex justify-between gap-4">
-        <button class="btn-secondary" onclick="prevStep()">Back</button>
-        <button class="btn-primary" onclick="nextStep()">Next</button>
-    </div>
-</div>
+<!-- STEP 3: Review & PDF -->
+<div id="step3" class="form-section centered">
 
-<!-- STEP 4: Review & PDF -->
-<div id="step4" class="step">
-    <h2 class="text-2xl font-bold mb-4">Review & Submit</h2>
-    <div class="summary-card" id="reviewSection"></div>
-    <div class="mt-4 flex justify-between gap-4">
+    <h2 class="text-2xl font-bold mb-4 text-center">Review & File</h2>
+
+    <div class="summary-card w-full max-w-md">
+        <h4 class="font-bold text-emerald-500 mb-2">Tax Summary</h4>
+        <p>Total Income: <span id="review-gross">₦0.00</span></p>
+        <p>Total Deductions: <span id="review-deductions">₦0.00</span></p>
+        <p>Taxable Income: <span id="review-taxable">₦0.00</span></p>
+        <p>PIT: <span id="review-pit">₦0.00</span></p>
+        <p>Other Charges: <span id="review-other">₦0.00</span></p>
+        <p><strong>Total Tax Due: <span id="review-total">₦0.00</span></strong></p>
+    </div>
+
+    <div class="flex gap-4 mt-4 justify-center">
         <button class="btn-secondary" onclick="prevStep()">Back</button>
-        <button class="btn-primary" onclick="generatePDF()">Download PDF</button>
+        <button class="btn-primary" onclick="import('./assets/pdfGenerator.js').then(m => m.generatePDF(window.__taxResult))">Download PDF</button>
         <button class="btn-secondary" onclick="clearDraft()">Clear Draft</button>
     </div>
+
 </div>
 
+</main>
+
 <script type="module" src="./assets/filingFlow.js"></script>
+
 </body>
 </html>
