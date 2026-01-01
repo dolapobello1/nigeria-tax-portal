@@ -5,123 +5,264 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nigeria Tax Filing 2026 | Created by Oladolapo Bello</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
 
-body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: #f8fafc; overflow-x: hidden; }
-input, select, textarea { background: rgba(15,23,42,0.9) !important; border: 1px solid #334155 !important; color: #fff; width: 100%; padding: 0.9rem; border-radius: 0.75rem; font-size: 0.875rem; transition:0.2s; text-align:center; }
-input:focus, select:focus, textarea:focus { border-color: #10b981 !important; box-shadow:0 0 20px rgba(16,185,129,0.2); outline:none; }
-input[type="checkbox"], input[type="radio"] { width:auto; }
-
-.glass { background: rgba(30,41,59,0.75); backdrop-filter: blur(25px); border:1px solid rgba(255,255,255,0.08); padding:2rem; border-radius:1.5rem; }
-.step-indicator { display:flex; justify-content:space-between; margin-bottom:2rem; }
-.step { flex:1; text-align:center; position:relative; }
-.step-circle { width:40px; height:40px; border-radius:50%; margin:0 auto 0.5rem; display:flex; align-items:center; justify-content:center; font-weight:bold; transition:0.3s; background:#1e293b; border:2px solid #334155; }
+body { font-family:'Plus Jakarta Sans',sans-serif; background:#020617; color:#f8fafc; overflow-x:hidden; }
+input, select { background: rgba(15,23,42,0.8); border:1px solid #334155; color:white; width:100%; padding:0.75rem; border-radius:0.75rem; font-size:0.875rem; transition:0.2s; text-align:center; }
+input:focus, select:focus { border-color:#10b981; box-shadow:0 0 15px rgba(16,185,129,0.2); outline:none; }
+.glass { background: rgba(30,41,59,0.85); backdrop-filter: blur(20px); border:1px solid rgba(255,255,255,0.08); padding:2rem; border-radius:2rem; margin-bottom:2rem; }
+.step-indicator { display:flex; justify-content:space-between; margin-bottom:1rem; }
+.step { flex:1; text-align:center; position:relative; cursor:pointer; }
+.step-circle { width:40px; height:40px; border-radius:50%; margin:0 auto 0.5rem; display:flex; align-items:center; justify-content:center; font-weight:bold; background:#1e293b; border:2px solid #334155; transition:0.3s; }
 .step-active .step-circle { background:#10b981; border-color:#10b981; color:#000; }
-.step-completed .step-circle { background:#059669; border-color:#059669; color:#fff; }
+.step-completed .step-circle { background:#059669; color:#fff; }
 .step-line { position:absolute; top:20px; left:50%; width:100%; height:2px; background:#334155; z-index:-1; }
 .step:last-child .step-line { display:none; }
 .step-completed .step-line { background:#10b981; }
-
-.btn-primary { background: #10b981; color:#000; padding:0.75rem 2rem; border-radius:0.75rem; font-weight:bold; border:none; cursor:pointer; transition:0.3s; }
+.btn-primary { background:#10b981; color:#000; padding:0.75rem 2rem; border-radius:0.75rem; font-weight:bold; border:none; cursor:pointer; }
 .btn-primary:hover { background:#059669; transform:translateY(-2px); }
-.btn-secondary { background:#334155; color:#fff; padding:0.75rem 2rem; border-radius:0.75rem; font-weight:bold; border:none; cursor:pointer; transition:0.3s; }
-.btn-secondary:hover { background:#475569; transform:translateY(-1px); }
-
+.btn-secondary { background:#334155; color:#fff; padding:0.75rem 2rem; border-radius:0.75rem; font-weight:bold; border:none; cursor:pointer; }
+.btn-secondary:hover { background:#475569; transform:translateY(-2px); }
+.summary-card { background: rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:1rem; padding:1rem; margin-bottom:1rem; }
+.warning-box { background: rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:0.75rem; padding:1rem; margin:1rem 0; }
 .form-section { display:none; }
 .form-section.active { display:block; animation:fadeIn 0.3s; }
-@keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
-
-.summary-card { background: rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:1rem; padding:1.5rem; margin-bottom:1rem; }
-.warning-box { background: rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:0.75rem; padding:1rem; margin:1rem 0; }
-
-.status-text { font-size:0.875rem; text-align:center; margin-bottom:1rem; color:#10b981; }
+@keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
 </style>
 </head>
-<body class="min-h-screen pb-12">
+<body class="min-h-screen p-4">
 
-<nav class="p-6 flex justify-between items-center max-w-7xl mx-auto sticky top-0 z-50 bg-[#020617]/90 backdrop-blur-xl border-b border-white/5">
-    <div>
-        <h1 class="text-2xl font-black italic tracking-tighter uppercase">
-            Nigeria <span class="text-emerald-500">TaxFiling</span> 2026
-        </h1>
-        <p class="text-[9px] text-slate-500 font-bold tracking-widest uppercase">
-            Created by Oladolapo Bello • Educational Use Only
-        </p>
-    </div>
-    <div class="flex gap-4 items-center">
-        <button onclick="resetFiling()" class="text-[10px] font-bold px-4 py-2 rounded-full border border-red-500/30 hover:bg-red-500 hover:text-white transition-all">
-            <i class="fa-solid fa-redo mr-1"></i> CLEAR DRAFT
-        </button>
-    </div>
-</nav>
+<header class="glass flex justify-between items-center mb-6">
+  <div>
+    <h1 class="text-2xl font-black italic tracking-tighter uppercase">Nigeria <span class="text-emerald-500">TaxFiling 2026</span></h1>
+    <p class="text-sm text-slate-400">Created by Oladolapo Bello | Educational / Informational Only</p>
+  </div>
+  <div class="flex gap-4">
+    <button class="btn-secondary" onclick="resetFiling()"><i class="fa-solid fa-redo mr-1"></i> Clear Draft</button>
+  </div>
+</header>
 
-<main class="max-w-4xl mx-auto p-6 mt-4">
-
+<!-- Step Indicators -->
 <div class="glass">
-
-<!-- Step Status -->
-<div id="progressBarContainer" class="mb-6">
-    <div class="step-indicator" id="stepIndicator">
-        <div class="step step-active" data-step="1"><div class="step-circle">1</div><div class="text-xs font-bold">Landing</div><div class="step-line"></div></div>
-        <div class="step" data-step="2"><div class="step-circle">2</div><div class="text-xs font-bold">Income</div><div class="step-line"></div></div>
-        <div class="step" data-step="3"><div class="step-circle">3</div><div class="text-xs font-bold">Deductions</div><div class="step-line"></div></div>
-        <div class="step" data-step="4"><div class="step-circle">4</div><div class="text-xs font-bold">Review/PDF</div></div>
-    </div>
-    <div class="status-text" id="statusText">Step 1 of 4</div>
+  <div class="step-indicator" id="stepIndicator">
+    <div class="step step-active" data-step="1"><div class="step-circle">1</div><div class="text-xs font-bold">Stakeholder</div><div class="step-line"></div></div>
+    <div class="step" data-step="2"><div class="step-circle">2</div><div class="text-xs font-bold">Income</div><div class="step-line"></div></div>
+    <div class="step" data-step="3"><div class="step-circle">3</div><div class="text-xs font-bold">Deductions</div><div class="step-line"></div></div>
+    <div class="step" data-step="4"><div class="step-circle">4</div><div class="text-xs font-bold">Review & PDF</div></div>
+  </div>
 </div>
 
-<!-- STEP 1: Landing -->
-<div id="step1" class="form-section active">
-    <h2 class="text-3xl font-black mb-4 text-center">Welcome to Nigeria Tax Filing 2026</h2>
-    <p class="text-center text-slate-400 mb-6">Choose your stakeholder type to start filing.</p>
-    <div class="flex justify-center gap-6 mb-8">
-        <button class="btn-primary" onclick="selectStakeholder('individual')">Individual</button>
-        <button class="btn-primary" onclick="selectStakeholder('sme')">SME</button>
-        <button class="btn-primary" onclick="selectStakeholder('corporate')">Corporate</button>
+<!-- Main Form -->
+<div class="glass" id="formContainer">
+  <!-- Step 1: Stakeholder -->
+  <div class="form-section active" id="step1">
+    <h2 class="text-xl font-bold mb-4">Select Your Stakeholder Type</h2>
+    <select id="stakeholderSelect">
+      <option value="individual">Individual / Resident</option>
+      <option value="sme">SME / Corporate</option>
+      <option value="nonresident">Non-Resident / Digital Income</option>
+    </select>
+    <div class="flex justify-end mt-6">
+      <button class="btn-primary" id="toStep2">Next</button>
     </div>
+  </div>
+
+  <!-- Step 2: Income -->
+  <div class="form-section" id="step2">
+    <h2 class="text-xl font-bold mb-4">Income Details</h2>
+    <div id="incomeFields"></div>
+    <div class="flex justify-between mt-6">
+      <button class="btn-secondary" id="backStep2">Back</button>
+      <button class="btn-primary" id="toStep3">Next</button>
+    </div>
+  </div>
+
+  <!-- Step 3: Deductions -->
+  <div class="form-section" id="step3">
+    <h2 class="text-xl font-bold mb-4">Deductions & Relief</h2>
+    <div id="deductionFields"></div>
+    <div class="summary-card mt-4">
+      <h4 class="font-bold text-emerald-500 mb-2">Total Deductions</h4>
+      <p id="totalDeductions">₦0.00</p>
+    </div>
+    <div class="flex justify-between mt-6">
+      <button class="btn-secondary" id="backStep3">Back</button>
+      <button class="btn-primary" id="toStep4">Next</button>
+    </div>
+  </div>
+
+  <!-- Step 4: Review & PDF -->
+  <div class="form-section" id="step4">
+    <h2 class="text-xl font-bold mb-4">Review & Generate PDF</h2>
+    <div class="summary-card" id="reviewContainer"></div>
+    <div class="flex justify-between mt-6">
+      <button class="btn-secondary" id="backStep4">Back</button>
+      <button class="btn-primary" id="generatePDFBtn">Download PDF</button>
+    </div>
+  </div>
 </div>
 
-<!-- STEP 2: Income -->
-<div id="step2" class="form-section">
-    <h2 class="text-2xl font-bold mb-4 text-center">Income Details</h2>
-    <div id="incomeFields" class="space-y-4"></div>
-    <div class="flex justify-between mt-8">
-        <button class="btn-secondary" onclick="prevStep()">Back</button>
-        <button class="btn-primary" onclick="nextStep()">Next</button>
-    </div>
-</div>
+<script type="module">
+// Constants
+const CRA = 800000;
+const MAX_RENT_RELIEF = 500000;
+const PIT_BANDS = [
+  [2200000, 0.15],
+  [9000000, 0.18],
+  [13000000, 0.21],
+  [25000000, 0.23],
+  [Infinity, 0.25]
+];
 
-<!-- STEP 3: Deductions -->
-<div id="step3" class="form-section">
-    <h2 class="text-2xl font-bold mb-4 text-center">Deductions & Reliefs</h2>
-    <div id="deductionFields" class="space-y-4"></div>
-    <div class="summary-card">
-        <h4 class="font-bold text-emerald-500 mb-2">Total Deductions</h4>
-        <p class="text-2xl font-black" id="totalDeductions">₦0.00</p>
-    </div>
-    <div class="flex justify-between mt-8">
-        <button class="btn-secondary" onclick="prevStep()">Back</button>
-        <button class="btn-primary" onclick="nextStep()">Next</button>
-    </div>
-</div>
+// Initial State
+let data = JSON.parse(localStorage.getItem('taxDraft')) || {};
+let stakeholder = data.stakeholder || 'individual';
+let step = 1;
 
-<!-- STEP 4: Review & PDF -->
-<div id="step4" class="form-section">
-    <h2 class="text-2xl font-bold mb-4 text-center">Review & Download</h2>
-    <div id="reviewContent" class="space-y-4"></div>
-    <div class="flex justify-between mt-8">
-        <button class="btn-secondary" onclick="prevStep()">Back</button>
-        <button class="btn-primary" onclick="downloadPDF()">Download PDF</button>
-    </div>
-    <p class="mt-4 text-xs text-slate-400">Educational use only. Not legal advice. Calculations based on 2026 Nigerian tax rules. Please consult FIRS/SIRS for official filing.</p>
-</div>
+// Elements
+const steps = [...document.querySelectorAll('.step')];
+const formSections = [...document.querySelectorAll('.form-section')];
+const incomeContainer = document.getElementById('incomeFields');
+const deductionContainer = document.getElementById('deductionFields');
+const reviewContainer = document.getElementById('reviewContainer');
+const stakeholderSelect = document.getElementById('stakeholderSelect');
 
-</div>
-</main>
+// Navigation
+function showStep(n){
+  step = n;
+  formSections.forEach(f=>f.classList.remove('active'));
+  document.getElementById('step'+n).classList.add('active');
+  steps.forEach(s=>s.classList.remove('step-active','step-completed'));
+  steps.forEach(s=>{
+    const sNum = parseInt(s.dataset.step);
+    if(sNum<step) s.classList.add('step-completed');
+    if(sNum===step) s.classList.add('step-active');
+  });
+  renderStep();
+}
 
-<script type="module" src="./assets/filingFlow.js"></script>
+// Event Bindings
+document.getElementById('toStep2').addEventListener('click',()=>{stakeholder=stakeholderSelect.value; data.stakeholder=stakeholder; saveData(); showStep(2);});
+document.getElementById('backStep2').addEventListener('click',()=>showStep(1));
+document.getElementById('toStep3').addEventListener('click',()=>{saveData(); showStep(3);});
+document.getElementById('backStep3').addEventListener('click',()=>showStep(2));
+document.getElementById('toStep4').addEventListener('click',()=>{calculateAll(); showStep(4);});
+document.getElementById('backStep4').addEventListener('click',()=>showStep(3));
+document.getElementById('generatePDFBtn').addEventListener('click',()=>generatePDF());
+
+// LocalStorage
+function saveData(){ localStorage.setItem('taxDraft', JSON.stringify(data)); }
+
+// Reset
+function resetFiling(){ localStorage.removeItem('taxDraft'); location.reload(); }
+
+// Render Inputs
+function renderStep(){
+  renderIncome();
+  renderDeductions();
+  renderReview();
+}
+
+function renderIncome(){
+  incomeContainer.innerHTML='';
+  if(stakeholder==='individual'){
+    ['salary','bonus','crypto'].forEach(id=>{
+      const div=document.createElement('div');
+      div.classList.add('mb-3');
+      const input=document.createElement('input');
+      input.type='number'; input.id=id; input.placeholder=id.toUpperCase()+' ₦'; input.value=data[id]||0;
+      input.addEventListener('input',(e)=>{data[id]=parseFloat(e.target.value)||0; saveData();});
+      div.appendChild(input); incomeContainer.appendChild(div);
+    });
+  } else if(stakeholder==='sme'){
+    ['turnover','cogs','opex','profit','assets'].forEach(id=>{
+      const div=document.createElement('div');
+      div.classList.add('mb-3');
+      const input=document.createElement('input');
+      input.type='number'; input.id=id; input.placeholder=id.toUpperCase()+' ₦'; input.value=data[id]||0;
+      input.addEventListener('input',(e)=>{data[id]=parseFloat(e.target.value)||0; saveData();});
+      div.appendChild(input); incomeContainer.appendChild(div);
+    });
+  } else if(stakeholder==='nonresident'){
+    ['digitalIncome','whtCredit'].forEach(id=>{
+      const div=document.createElement('div');
+      div.classList.add('mb-3');
+      const input=document.createElement('input');
+      input.type='number'; input.id=id; input.placeholder=id.toUpperCase()+' ₦'; input.value=data[id]||0;
+      input.addEventListener('input',(e)=>{data[id]=parseFloat(e.target.value)||0; saveData();});
+      div.appendChild(input); incomeContainer.appendChild(div);
+    });
+  }
+}
+
+function renderDeductions(){
+  deductionContainer.innerHTML='';
+  if(stakeholder==='individual'){
+    ['rent','pension','nhf','insurance','nhis'].forEach(id=>{
+      const div=document.createElement('div');
+      div.classList.add('mb-3');
+      const input=document.createElement('input');
+      input.type='number'; input.id=id; input.placeholder=id.toUpperCase()+' ₦'; input.value=data[id]||0;
+      input.addEventListener('input',(e)=>{data[id]=parseFloat(e.target.value)||0; saveData(); calculateAll();});
+      div.appendChild(input); deductionContainer.appendChild(div);
+    });
+  }
+}
+
+function calculateAll(){
+  // Example: total income
+  let incomeTotal=0;
+  if(stakeholder==='individual'){ incomeTotal=(data.salary||0)+(data.bonus||0)+(data.crypto||0); }
+  else if(stakeholder==='sme'){ incomeTotal=(data.turnover||0)-(data.cogs||0)-(data.opex||0); }
+  else if(stakeholder==='nonresident'){ incomeTotal=(data.digitalIncome||0); }
+  data.totalIncome=incomeTotal;
+
+  // Total deductions
+  let ded=0;
+  if(stakeholder==='individual'){ ded=(data.rent||0)+(data.pension||0)+(data.nhf||0)+(data.insurance||0)+(data.nhis||0); }
+  data.totalDeductions=ded;
+
+  data.taxableIncome=Math.max(incomeTotal-ded,0);
+  // PIT calculation
+  let remaining=data.taxableIncome, tax=0;
+  for(const [band,rate] of PIT_BANDS){
+    const x=Math.min(remaining,band); tax+=x*rate; remaining-=x; if(remaining<=0) break;
+  }
+  data.pit=tax; data.totalTax=data.pit; saveData();
+}
+
+function renderReview(){
+  calculateAll();
+  reviewContainer.innerHTML=`
+    <p><strong>Stakeholder:</strong> ${stakeholder}</p>
+    <p><strong>Total Income:</strong> ₦${data.totalIncome.toLocaleString()}</p>
+    <p><strong>Total Deductions:</strong> ₦${data.totalDeductions.toLocaleString()}</p>
+    <p><strong>Taxable Income:</strong> ₦${data.taxableIncome.toLocaleString()}</p>
+    <p><strong>PIT 2026:</strong> ₦${data.pit.toLocaleString()}</p>
+    <p><em>Educational / Informational Use Only</em></p>
+  `;
+}
+
+function generatePDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  let y = 10;
+  doc.setFontSize(14);
+  doc.text("Nigeria Tax Filing 2026",10,y); y+=10;
+  doc.text(`Stakeholder: ${stakeholder}`,10,y); y+=10;
+  doc.text(`Total Income: ₦${data.totalIncome.toLocaleString()}`,10,y); y+=10;
+  doc.text(`Total Deductions: ₦${data.totalDeductions.toLocaleString()}`,10,y); y+=10;
+  doc.text(`Taxable Income: ₦${data.taxableIncome.toLocaleString()}`,10,y); y+=10;
+  doc.text(`PIT 2026: ₦${data.pit.toLocaleString()}`,10,y); y+=10;
+  doc.save("NigeriaTax2026.pdf");
+}
+
+// Initialize
+renderStep();
+</script>
 
 </body>
 </html>
