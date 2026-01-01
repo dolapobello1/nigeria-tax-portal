@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nigeria Tax Filing 2026</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></script>
 <style>
 body { font-family:'Plus Jakarta Sans',sans-serif; background:#020617; color:#f8fafc; }
 input, select { background:#0f172a; color:#fff; padding:0.8rem; border-radius:0.75rem; border:1px solid #334155; width:100%; margin-bottom:1rem; }
@@ -24,19 +23,20 @@ input, select { background:#0f172a; color:#fff; padding:0.8rem; border-radius:0.
 
 <h1 class="text-3xl font-black mb-6">Nigeria Tax Filing 2026</h1>
 
-<!-- Landing Page -->
+<!-- Landing Section -->
 <div id="landing">
-  <p class="mb-4">Select your taxpayer type to start filing:</p>
+  <p class="mb-4 text-slate-400">Welcome! Select your taxpayer type to start filing:</p>
   <div id="taxpayerToggle">
     <span class="toggle-btn" data-type="individual">Individual</span>
     <span class="toggle-btn" data-type="sme">SME / Company</span>
     <span class="toggle-btn" data-type="corporate">Corporate / NGO</span>
   </div>
+  <p id="landingMessage" class="mt-4 text-slate-400"></p>
 </div>
 
-<!-- Multi-step Form -->
-<div id="formContainer" class="mt-6" style="display:none;">
-
+<!-- Filing Form -->
+<div id="formContainer" style="display:none;">
+  
   <!-- STEP 1: Taxpayer Info -->
   <div class="step active" id="step1">
     <h2 class="font-bold mb-4">Taxpayer Info</h2>
@@ -99,6 +99,14 @@ document.querySelectorAll('.toggle-btn').forEach(btn=>{
     btn.classList.add('active');
     taxpayerType = btn.dataset.type;
     localStorage.setItem('taxpayerType', taxpayerType);
+    // Show message per type
+    const msg={
+      individual:"You're filing as an Individual. The system will auto-calculate PIT and reliefs.",
+      sme:"You're filing as an SME/Company. We'll calculate your corporate tax obligations.",
+      corporate:"You're filing as a Corporate / NGO. Tax reliefs and contributions will be calculated."
+    };
+    document.getElementById('landingMessage').innerText=msg[taxpayerType];
+    // Show form
     document.getElementById('landing').style.display='none';
     document.getElementById('formContainer').style.display='block';
     createInputs();
@@ -106,7 +114,7 @@ document.querySelectorAll('.toggle-btn').forEach(btn=>{
 });
 
 // Steps
-let currentStep=1, totalSteps=4;
+let currentStep=1,totalSteps=4;
 function showStep(step){
   document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
   document.getElementById('step'+step).classList.add('active');
@@ -114,23 +122,14 @@ function showStep(step){
 function nextStep(){ if(currentStep<totalSteps){currentStep++; showStep(currentStep); calculate();} }
 function prevStep(){ if(currentStep>1){currentStep--; showStep(currentStep);} }
 
-// Fields by stakeholder type
+// Fields per stakeholder type
 const incomeFields=document.getElementById('incomeFields');
 const deductionsFields=document.getElementById('deductionsFields');
 
-const fields = {
-  individual:{
-    income:{grossSalary:0, bonuses:0, otherIncome:0},
-    deductions:{rentPaid:0, pension:0, nhf:0, lifeInsurance:0, nhis:0, lowIncome:false}
-  },
-  sme:{
-    income:{turnover:0, cogs:0, opex:0},
-    deductions:{salariesPaid:0, capitalAllowance:0, operatingExpenses:0}
-  },
-  corporate:{
-    income:{revenue:0, grants:0},
-    deductions:{staffBenefits:0, operatingCosts:0}
-  }
+const fields={
+  individual:{income:{grossSalary:0, bonuses:0, otherIncome:0}, deductions:{rentPaid:0,pension:0,nhf:0,insurance:0,nhis:0,lowIncome:false}},
+  sme:{income:{turnover:0,cogs:0,opex:0}, deductions:{salariesPaid:0,capitalAllowance:0,operatingExpenses:0}},
+  corporate:{income:{revenue:0,grants:0}, deductions:{staffBenefits:0,operatingCosts:0}}
 };
 
 // Create input fields
@@ -159,14 +158,13 @@ function createInputs(){
 // Autosave
 function autosave(id){
   const el=document.getElementById(id);
-  if(el.type==='checkbox'){ localStorage.setItem(id,el.checked); }
-  else{ localStorage.setItem(id,el.value); }
+  if(el.type==='checkbox'){ localStorage.setItem(id,el.checked); } else { localStorage.setItem(id,el.value); }
   calculate();
 }
 
 // Calculate all
 function calculate(){
-  let totalIncome=0, totalDeductions=0, breakdown='';
+  let totalIncome=0,totalDeductions=0,breakdown='';
   for(const k in fields[taxpayerType].income){
     const val=parseFloat(document.getElementById(k).value)||0;
     totalIncome+=val; localStorage.setItem(k,val);
@@ -176,13 +174,10 @@ function calculate(){
     if(val.type==='checkbox'){ val=val.checked?1:0; localStorage.setItem(k,val); } else { val=parseFloat(val.value)||0; localStorage.setItem(k,val);}
     totalDeductions+=val; breakdown+=`<p>${k}: ₦${val.toLocaleString()}</p>`;
   }
-
-  // Individual low-income override
-  if(taxpayerType==='individual' && document.getElementById('lowIncome').checked){ totalDeductions=totalIncome; }
-
+  if(taxpayerType==='individual' && document.getElementById('lowIncome')?.checked){ totalDeductions=totalIncome; }
   const taxableIncome=Math.max(totalIncome-totalDeductions,0);
   const pit=calculatePIT(taxableIncome);
-  
+
   document.getElementById('totalIncome').innerText=totalIncome.toLocaleString();
   document.getElementById('totalDeductions').innerText=totalDeductions.toLocaleString();
   document.getElementById('reviewIncome').innerText=totalIncome.toLocaleString();
@@ -190,11 +185,10 @@ function calculate(){
   document.getElementById('reviewTaxable').innerText=taxableIncome.toLocaleString();
   document.getElementById('reviewPIT').innerText=pit.toLocaleString();
   document.getElementById('deductionBreakdown').innerHTML=breakdown;
-
   window.__taxResult={totalIncome,totalDeductions,taxableIncome,pit,breakdown};
 }
 
-// PIT calculation Nigerian 2026 (simplified example)
+// Simplified PIT calculation Nigerian 2026
 function calculatePIT(taxable){
   if(taxable<=300000) return taxable*0.07;
   if(taxable<=600000) return 21000+(taxable-300000)*0.11;
@@ -210,8 +204,7 @@ function clearDraft(){ localStorage.clear(); location.reload(); }
 // PDF Download
 function downloadPDF(){
   import('https://cdn.jsdelivr.net/gh/parallax/jsPDF@2.5.1/dist/jspdf.umd.min.js').then(jsPDF=>{
-    const doc=new jsPDF.jsPDF();
-    const r=window.__taxResult;
+    const doc=new jsPDF.jsPDF(); const r=window.__taxResult;
     doc.setFontSize(16); doc.text("Nigeria Tax Filing 2026",10,10);
     doc.setFontSize(12); doc.text(`Stakeholder: ${taxpayerType}`,10,20);
     doc.text(`Total Income: ₦${r.totalIncome.toLocaleString()}`,10,30);
