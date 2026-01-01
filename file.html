@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>Nigeria Tax Filing 2026 | Unified Portal</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   body { background:#0f172a; color:#f8fafc; font-family:'Plus Jakarta Sans', sans-serif; }
   .step { display:none; }
@@ -68,9 +67,7 @@ Nigeria Tax Filing 2026
     <div id="review" class="review-box space-y-2 text-sm"></div>
     <div class="mt-6 flex justify-between">
       <button onclick="prevStep()" class="border px-4 py-2 rounded font-semibold">Back</button>
-      <button
-        onclick="import('./assets/pdfGenerator.js').then(m => m.generatePDF(window.__taxResult))"
-        class="bg-purple-500 px-6 py-3 rounded font-bold">
+      <button onclick="generatePDF(window.__taxResult)" class="bg-purple-500 px-6 py-3 rounded font-bold">
         Download PDF
       </button>
     </div>
@@ -78,6 +75,12 @@ Nigeria Tax Filing 2026
 
 </div>
 
+<!-- Scripts -->
 <script type="module" src="./assets/filingFlow.js"></script>
+<script type="module">
+import { generatePDF } from './assets/pdfGenerator.js';
+window.generatePDF = generatePDF; // attach globally for button
+</script>
+
 </body>
 </html>
