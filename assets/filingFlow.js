@@ -1,105 +1,150 @@
-// assets/filingFlow.js
-import { calculateDeductions, calculatePIT, calculateCorporateTax } from './taxRules.js';
-import { generatePDF } from './pdfGenerator.js';
+import { calculateIndividualTax, calculateSMETax, calculateCorporateTax } from './taxRules.js';
 
-let currentStep = 0;
+let currentStep = 1;
+let stakeholder = '';
+let filingData = JSON.parse(localStorage.getItem('filingData') || '{}');
 
-function showStep(step) {
-    document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
-    const stepEl = document.getElementById(`step${step}`);
-    if(stepEl) stepEl.classList.add('active');
-    currentStep = step;
-}
-
-function updateStakeholderFields() {
-    const type = document.getElementById('stakeholderType').value;
-    document.querySelectorAll('.stakeholder-field').forEach(f => f.style.display = 'none');
-    document.querySelectorAll(`.field-${type}`).forEach(f => f.style.display = 'block');
-}
-
-window.nextStep = function() {
+export function selectStakeholder(type){
+    stakeholder = type;
+    generateIncomeFields();
+    generateDeductionFields();
     saveDraft();
-    showStep(currentStep + 1);
-    calculatePreview();
+    nextStep();
 }
 
-window.prevStep = function() {
-    showStep(currentStep - 1);
+export function nextStep(){
+    if(currentStep < 4){
+        currentStep++;
+        updateStepUI();
+    }
 }
 
-// Auto-save to localStorage
-window.saveDraft = function() {
-    const data = {};
-    document.querySelectorAll('input, select').forEach(i => {
-        if(i.type === 'checkbox') data[i.id] = i.checked;
-        else data[i.id] = i.value;
-    });
-    localStorage.setItem('taxDraft', JSON.stringify(data));
+export function prevStep(){
+    if(currentStep > 1){
+        currentStep--;
+        updateStepUI();
+    }
 }
 
-// Load draft
-window.loadDraft = function() {
-    const draft = JSON.parse(localStorage.getItem('taxDraft') || '{}');
-    Object.keys(draft).forEach(id => {
-        const el = document.getElementById(id);
-        if(!el) return;
-        if(el.type === 'checkbox') el.checked = draft[id];
-        else el.value = draft[id];
-    });
-    updateStakeholderFields();
-    calculatePreview();
+function updateStepUI(){
+    for(let i=1;i<=4;i++){
+        document.getElementById(`step${i}`).classList.remove('active');
+        const stepIndicator = document.querySelector(`.step[data-step="${i}"]`);
+        stepIndicator.classList.remove('step-active','step-completed');
+        if(i<currentStep) stepIndicator.classList.add('step-completed');
+        if(i===currentStep) stepIndicator.classList.add('step-active');
+    }
+    document.getElementById(`step${currentStep}`).classList.add('active');
+    document.getElementById('statusText').innerText = `Step ${currentStep} of 4`;
+    saveDraft();
+    if(currentStep===4) showReview();
 }
 
-// Reset
-window.resetFiling = function() {
-    localStorage.removeItem('taxDraft');
+export function resetFiling(){
+    localStorage.removeItem('filingData');
     location.reload();
 }
 
-// Stakeholder change
-window.updateStakeholderType = function() {
-    updateStakeholderFields();
-    calculatePreview();
+function saveDraft(){
+    localStorage.setItem('filingData', JSON.stringify(filingData));
 }
 
-// Main calculation
-window.calculatePreview = function() {
-    const stakeholder = document.getElementById('stakeholderType').value;
-
-    const grossSalary = Number(document.getElementById('grossSalary')?.value || 0);
-    const bonuses = Number(document.getElementById('bonuses')?.value || 0);
-    const otherIncome = Number(document.getElementById('otherIncome')?.value || 0);
-    const income = grossSalary + bonuses + otherIncome;
-
-    const deductions = calculateDeductions({
-        rentPaid: Number(document.getElementById('rentPaid')?.value || 0),
-        pension: Number(document.getElementById('pension')?.value || 0),
-        nhf: Number(document.getElementById('nhf')?.value || 0),
-        insurance: Number(document.getElementById('insurance')?.value || 0),
-        nhis: Number(document.getElementById('nhis')?.value || 0),
-        lowIncome: document.getElementById('lowIncome')?.checked
-    });
-
-    const pit = stakeholder === 'individual' ? calculatePIT(income, deductions, document.getElementById('lowIncome')?.checked) : 0;
-    const profit = Number(document.getElementById('profit')?.value || 0);
-    const corporateTax = calculateCorporateTax(profit, stakeholder);
-
-    window.__taxResult = {
-        stakeholder,
-        fullName: document.getElementById('fullName')?.value || document.getElementById('companyName')?.value || "",
-        totalIncome: income,
-        totalDeductions: deductions.total,
-        PIT: pit,
-        CorporateTax: corporateTax,
-        taxableIncome: income - deductions.total
-    };
-
-    // Update UI
-    document.getElementById('totalIncome').innerText = `₦${income.toLocaleString()}`;
-    document.getElementById('totalDeductions').innerText = `₦${deductions.total.toLocaleString()}`;
-    document.getElementById('review-taxable').innerText = `₦${(income - deductions.total).toLocaleString()}`;
-    document.getElementById('review-total').innerText = `₦${(pit + corporateTax).toLocaleString()}`;
-    document.getElementById('review-rate').innerText = `${Math.round((pit + corporateTax)/((income - deductions.total)||1)*100)}%`;
+function generateIncomeFields(){
+    const container = document.getElementById('incomeFields');
+    container.innerHTML='';
+    if(stakeholder==='individual'){
+        container.innerHTML=`
+        <input type="number" id="salary" placeholder="Gross Salary ₦" oninput="updateData('salary',this.value)">
+        <input type="number" id="bonus" placeholder="Bonuses & Allowances ₦" oninput="updateData('bonus',this.value)">
+        <input type="number" id="crypto" placeholder="Crypto Gains ₦" oninput="updateData('crypto',this.value)">
+        `;
+    } else if(stakeholder==='sme' || stakeholder==='corporate'){
+        container.innerHTML=`
+        <input type="number" id="profit" placeholder="Profit ₦" oninput="updateData('profit',this.value)">
+        `;
+    }
 }
 
-window.addEventListener('DOMContentLoaded', loadDraft);
+function generateDeductionFields(){
+    const container = document.getElementById('deductionFields');
+    container.innerHTML='';
+    if(stakeholder==='individual'){
+        container.innerHTML=`
+        <input type="number" id="rent" placeholder="Rent Paid ₦" oninput="updateData('rent',this.value)">
+        <input type="number" id="pension" placeholder="Pension ₦" oninput="updateData('pension',this.value)">
+        <input type="number" id="nhf" placeholder="NHF ₦" oninput="updateData('nhf',this.value)">
+        `;
+    } else {
+        container.innerHTML=`<p class="text-slate-400">No additional deductions for this stakeholder</p>`;
+    }
+}
+
+function updateData(key,value){
+    filingData[key]=parseFloat(value)||0;
+    saveDraft();
+    calculateDeductions();
+}
+
+function calculateDeductions(){
+    if(stakeholder==='individual'){
+        const total = (filingData.rent||0)+(filingData.pension||0)+(filingData.nhf||0);
+        document.getElementById('totalDeductions').innerText = `₦${total.toLocaleString()}`;
+    } else {
+        document.getElementById('totalDeductions').innerText = `₦0`;
+    }
+}
+
+function showReview(){
+    const container = document.getElementById('reviewContent');
+    container.innerHTML='';
+    let html='';
+    if(stakeholder==='individual'){
+        const income = (filingData.salary||0)+(filingData.bonus||0)+(filingData.crypto||0);
+        const deductions = (filingData.rent||0)+(filingData.pension||0)+(filingData.nhf||0);
+        const result = calculateIndividualTax(income,deductions,true,filingData.crypto||0);
+        html+=`<div class="summary-card">
+        <h4 class="font-bold text-emerald-500">Total Income</h4>
+        <p>₦${income.toLocaleString()}</p>
+        </div>
+        <div class="summary-card">
+        <h4 class="font-bold text-emerald-500">Total Deductions</h4>
+        <p>₦${deductions.toLocaleString()}</p>
+        </div>
+        <div class="summary-card">
+        <h4 class="font-bold text-emerald-500">Taxable Income</h4>
+        <p>₦${result.taxable.toLocaleString()}</p>
+        </div>
+        <div class="summary-card">
+        <h4 class="font-bold text-emerald-500">Tax Due</h4>
+        <p>₦${result.tax.toLocaleString()}</p>
+        </div>`;
+    } else if(stakeholder==='sme'){
+        const profit = filingData.profit||0;
+        const result = calculateSMETax(profit);
+        html+=`<div class="summary-card">
+        <h4 class="font-bold text-emerald-500">Profit</h4>
+        <p>₦${profit.toLocaleString()}</p>
+        </div>
+        <div class="summary-card">
+        <h4 class="font-bold text-emerald-500">Tax Due</h4>
+        <p>₦${result.tax.toLocaleString()}</p>
+        </div>`;
+    } else {
+        const profit = filingData.profit||0;
+        const result = calculateCorporateTax(profit);
+        html+=`<div class="summary-card">
+        <h4 class="font-bold text-emerald-500">Profit</h4>
+        <p>₦${profit.toLocaleString()}</p>
+        </div>
+        <div class="summary-card">
+        <h4 class="font-bold text-emerald-500">Tax Due</h4>
+        <p>₦${result.tax.toLocaleString()}</p>
+        </div>`;
+    }
+    container.innerHTML=html;
+    saveDraft();
+}
+
+export function downloadPDF(){
+    import('./pdfGenerator.js').then(m=>m.generatePDF(filingData,stakeholder));
+}
