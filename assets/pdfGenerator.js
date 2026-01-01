@@ -35,7 +35,7 @@ export function generatePDF(data) {
   doc.text(`Net Tax Payable: ₦${data.netTaxPayable.toLocaleString()}`, 20, y); y += 10;
 
   doc.setFontSize(10);
-  doc.text("Note: Calculations are based on Nigeria 2026 tax regulations.", 20, y); y += 5;
+  doc.text("Note: Calculations based on Nigeria 2026 regulations.", 20, y); y += 5;
   doc.text("For educational purposes only. Not legal/financial advice.", 20, y);
 
   doc.save("Nigeria-Tax-Filing-2026.pdf");
