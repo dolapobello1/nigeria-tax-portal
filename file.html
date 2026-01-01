@@ -3,219 +3,98 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nigeria Tax Filing 2026</title>
+<title>Nigeria Tax Filing 2026 | Portal</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
-body { font-family:'Plus Jakarta Sans',sans-serif; background:#020617; color:#f8fafc; }
-input, select { background:#0f172a; color:#fff; padding:0.8rem; border-radius:0.75rem; border:1px solid #334155; width:100%; margin-bottom:1rem; transition:0.2s; }
-input:focus, select:focus { border-color:#10b981; outline:none; box-shadow:0 0 10px #10b981; }
-.step { display:none; }
-.step.active { display:block; animation:fadeIn 0.3s; }
-@keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-.btn-primary { background:#10b981; color:#000; padding:.75rem 2rem; border-radius:.75rem; font-weight:bold; cursor:pointer; transition:0.2s; }
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: #f8fafc; }
+h1,h2 { text-align:center; }
+input, select { background: #0f172a !important; border: 1px solid #334155 !important; color: white; width: 100%; padding:0.75rem; border-radius:0.75rem; font-size:0.875rem; display:block; margin:auto; text-align:center; }
+button { cursor:pointer; transition:0.3s; }
+.btn-primary { background:#10b981; color:#000; padding:0.75rem 2rem; border-radius:0.75rem; font-weight:bold; border:none; margin:auto; display:block; }
 .btn-primary:hover { background:#059669; }
-.btn-secondary { background:#334155; color:#fff; padding:.75rem 2rem; border-radius:.75rem; font-weight:bold; cursor:pointer; transition:0.2s; }
+.btn-secondary { background:#334155; color:#fff; padding:0.75rem 2rem; border-radius:0.75rem; font-weight:bold; border:none; margin:auto; display:block; }
 .btn-secondary:hover { background:#475569; }
-.summary-card { background:rgba(16,185,129,0.1); padding:1rem; border-radius:1rem; margin-bottom:1rem; }
-.toggle-btn { cursor:pointer; padding:.5rem 1rem; border-radius:.5rem; border:1px solid #334155; margin-right:.5rem; display:inline-block; transition:0.3s; }
-.toggle-btn.active { background:#10b981; color:#000; border-color:#10b981; }
-.progress-bar { width:100%; height:10px; background:#1e293b; border-radius:5px; overflow:hidden; margin-bottom:1rem; }
-.progress-fill { height:100%; background:linear-gradient(to right,#10b981,#059669); width:0%; transition:0.3s; }
+.step { display:none; }
+.step.active { display:block; animation: fadeIn 0.3s; max-width:500px; margin:auto; }
+@keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+.summary-card { background: rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:1rem; padding:1rem; margin:1rem 0; text-align:center; }
 </style>
 </head>
-<body class="p-8 max-w-5xl mx-auto">
+<body class="p-6">
 
-<h1 class="text-4xl font-black mb-6">Nigeria Tax Filing 2026</h1>
+<h1 class="text-3xl font-black mb-6">Nigeria Tax Filing 2026</h1>
 
-<!-- Landing -->
-<div id="landing">
-  <p class="mb-4 text-slate-400">Select your taxpayer type:</p>
-  <div id="taxpayerToggle">
-    <span class="toggle-btn" data-type="individual">Individual</span>
-    <span class="toggle-btn" data-type="sme">SME / Company</span>
-    <span class="toggle-btn" data-type="corporate">Corporate / NGO</span>
-  </div>
-  <p id="landingMessage" class="mt-4 text-slate-400"></p>
+<!-- Step 0: Stakeholder Selection -->
+<div id="step0" class="step active">
+    <h2 class="text-2xl font-bold mb-4">Select Your Stakeholder Type</h2>
+    <div class="flex justify-center gap-4">
+        <button class="btn-primary" onclick="setStakeholder('individual')">Individual</button>
+        <button class="btn-primary" onclick="setStakeholder('sme')">SME</button>
+        <button class="btn-primary" onclick="setStakeholder('corporate')">Corporate</button>
+    </div>
 </div>
 
-<!-- Filing Form -->
-<div id="formContainer" style="display:none;">
-
-  <!-- Progress Bar -->
-  <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
-
-  <!-- STEP 1: Taxpayer Info -->
-  <div class="step active" id="step1">
-    <h2 class="font-bold mb-4 text-2xl">Taxpayer Information</h2>
-    <input type="text" id="fullName" placeholder="Full Name / Company" oninput="autosave('fullName')">
-    <input type="text" id="tin" placeholder="TIN / UTIN" oninput="autosave('tin')">
-    <select id="taxYear" oninput="autosave('taxYear')">
-      <option value="2026">2026</option>
-      <option value="2025">2025</option>
-      <option value="2024">2024</option>
-    </select>
-    <div class="flex justify-between mt-4">
-      <div>
-        <button class="btn-secondary" onclick="clearDraft()"><i class="fa-solid fa-redo mr-2"></i> Clear Draft</button>
-      </div>
-      <button class="btn-primary" onclick="nextStep()"><i class="fa-solid fa-arrow-right mr-2"></i> Next</button>
+<!-- STEP 1: Basic Info -->
+<div id="step1" class="step">
+    <h2 class="text-2xl font-bold mb-4">Taxpayer Information</h2>
+    <div class="grid gap-4">
+        <input type="text" id="name" placeholder="Full Name / Company Name">
+        <input type="text" id="tin" placeholder="TIN / UTIN">
+        <select id="taxYear">
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+        </select>
+        <select id="filingState">
+            <option value="lagos">Lagos</option>
+            <option value="abuja">FCT</option>
+            <option value="rivers">Rivers</option>
+            <option value="other">Other</option>
+        </select>
     </div>
-  </div>
-
-  <!-- STEP 2: Income -->
-  <div class="step" id="step2">
-    <h2 class="font-bold mb-4 text-2xl">Income Details</h2>
-    <div id="incomeFields"></div>
-    <div class="summary-card">Total Income: ₦<span id="totalIncome">0.00</span></div>
-    <div class="flex justify-between mt-4">
-      <button class="btn-secondary" onclick="prevStep()"><i class="fa-solid fa-arrow-left mr-2"></i> Back</button>
-      <button class="btn-primary" onclick="nextStep()">Next <i class="fa-solid fa-arrow-right ml-2"></i></button>
+    <div class="mt-4 flex justify-between gap-4">
+        <button class="btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn-primary" onclick="nextStep()">Next</button>
     </div>
-  </div>
+</div>
 
-  <!-- STEP 3: Deductions -->
-  <div class="step" id="step3">
-    <h2 class="font-bold mb-4 text-2xl">Deductions & Reliefs</h2>
-    <div id="deductionsFields"></div>
-    <div class="summary-card">Total Deductions: ₦<span id="totalDeductions">0.00</span></div>
-    <div class="flex justify-between mt-4">
-      <button class="btn-secondary" onclick="prevStep()"><i class="fa-solid fa-arrow-left mr-2"></i> Back</button>
-      <button class="btn-primary" onclick="nextStep()">Review <i class="fa-solid fa-arrow-right ml-2"></i></button>
-    </div>
-  </div>
-
-  <!-- STEP 4: Review & PDF -->
-  <div class="step" id="step4">
-    <h2 class="font-bold mb-4 text-2xl">Review & File</h2>
+<!-- STEP 2: Income -->
+<div id="step2" class="step">
+    <h2 class="text-2xl font-bold mb-4">Income Details</h2>
+    <div id="incomeInputs"></div>
     <div class="summary-card">
-      <p>Total Income: ₦<span id="reviewIncome">0.00</span></p>
-      <p>Total Deductions: ₦<span id="reviewDeductions">0.00</span></p>
-      <p>Taxable Income: ₦<span id="reviewTaxable">0.00</span></p>
-      <p>PIT: ₦<span id="reviewPIT">0.00</span></p>
-      <div id="deductionBreakdown" class="mt-2 text-sm text-slate-400"></div>
+        <strong>Total Income:</strong> ₦<span id="totalIncome">0.00</span>
     </div>
-    <div class="flex justify-between mt-4">
-      <button class="btn-secondary" onclick="prevStep()"><i class="fa-solid fa-arrow-left mr-2"></i> Back</button>
-      <button class="btn-primary" onclick="downloadPDF()"><i class="fa-solid fa-download mr-2"></i> Download PDF</button>
+    <div class="mt-4 flex justify-between gap-4">
+        <button class="btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn-primary" onclick="nextStep()">Next</button>
     </div>
-  </div>
-
 </div>
 
-<script type="module">
-let taxpayerType=''; let currentStep=1; const totalSteps=4;
-const incomeFields=document.getElementById('incomeFields');
-const deductionsFields=document.getElementById('deductionsFields');
-const progressFill=document.getElementById('progressFill');
+<!-- STEP 3: Deductions -->
+<div id="step3" class="step">
+    <h2 class="text-2xl font-bold mb-4">Deductions & Reliefs</h2>
+    <div id="deductionInputs"></div>
+    <div class="summary-card">
+        <strong>Total Deductions:</strong> ₦<span id="totalDeductions">0.00</span>
+    </div>
+    <div class="mt-4 flex justify-between gap-4">
+        <button class="btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn-primary" onclick="nextStep()">Next</button>
+    </div>
+</div>
 
-// Stakeholder toggle
-document.querySelectorAll('.toggle-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    taxpayerType=btn.dataset.type;
-    localStorage.setItem('taxpayerType',taxpayerType);
-    document.getElementById('landing').style.display='none';
-    document.getElementById('formContainer').style.display='block';
-    createInputs();
-    updateProgress();
-  });
-});
+<!-- STEP 4: Review & PDF -->
+<div id="step4" class="step">
+    <h2 class="text-2xl font-bold mb-4">Review & Submit</h2>
+    <div class="summary-card" id="reviewSection"></div>
+    <div class="mt-4 flex justify-between gap-4">
+        <button class="btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn-primary" onclick="generatePDF()">Download PDF</button>
+        <button class="btn-secondary" onclick="clearDraft()">Clear Draft</button>
+    </div>
+</div>
 
-// Step controls
-function showStep(step){ document.querySelectorAll('.step').forEach(s=>s.classList.remove('active')); document.getElementById('step'+step).classList.add('active'); updateProgress(); }
-function nextStep(){ if(currentStep<totalSteps){ currentStep++; showStep(currentStep); calculate(); } }
-function prevStep(){ if(currentStep>1){ currentStep--; showStep(currentStep); calculate(); } }
-function updateProgress(){ progressFill.style.width=(currentStep/totalSteps*100)+'%'; }
-
-// Fields
-const fields={
-  individual:{
-    income:{grossSalary:0,bonuses:0,otherIncome:0},
-    deductions:{rentPaid:0,pension:0,nhf:0,insurance:0,nhis:0,lowIncome:false}
-  },
-  sme:{
-    income:{turnover:0,cogs:0,opex:0},
-    deductions:{salariesPaid:0,capitalAllowance:0,operatingExpenses:0}
-  },
-  corporate:{
-    income:{revenue:0,grants:0},
-    deductions:{staffBenefits:0,operatingCosts:0}
-  }
-};
-
-function createInputs(){
-  incomeFields.innerHTML=''; deductionsFields.innerHTML='';
-  const inc=fields[taxpayerType].income;
-  const ded=fields[taxpayerType].deductions;
-  for(const k in inc){
-    const inp=document.createElement('input'); inp.id=k; inp.type='number';
-    inp.value=localStorage.getItem(k)||0; inp.placeholder=k; inp.oninput=calculate; incomeFields.appendChild(inp);
-  }
-  for(const k in ded){
-    if(typeof ded[k]==='boolean'){
-      const div=document.createElement('div'); const cb=document.createElement('input'); cb.type='checkbox'; cb.id=k;
-      cb.checked=localStorage.getItem(k)==='true'; cb.onchange=calculate; div.appendChild(cb); div.appendChild(document.createTextNode(' Low income exemption ≤ ₦800,000')); deductionsFields.appendChild(div);
-    } else {
-      const inp=document.createElement('input'); inp.id=k; inp.type='number';
-      inp.value=localStorage.getItem(k)||0; inp.placeholder=k; inp.oninput=calculate; deductionsFields.appendChild(inp);
-    }
-  }
-  calculate();
-}
-
-// Autosave
-function autosave(id){ const el=document.getElementById(id); if(el.type==='checkbox'){ localStorage.setItem(id,el.checked); } else { localStorage.setItem(id,el.value); } calculate(); }
-
-// Calculate PIT and totals
-function calculate(){
-  let totalIncome=0,totalDeductions=0,breakdown='';
-  for(const k in fields[taxpayerType].income){ const val=parseFloat(document.getElementById(k).value)||0; totalIncome+=val; localStorage.setItem(k,val); }
-  for(const k in fields[taxpayerType].deductions){
-    let val=document.getElementById(k); if(val.type==='checkbox'){ val=val.checked?1:0; localStorage.setItem(k,val); } else { val=parseFloat(val.value)||0; localStorage.setItem(k,val);}
-    totalDeductions+=val; breakdown+=`<p>${k}: ₦${val.toLocaleString()}</p>`;
-  }
-  if(taxpayerType==='individual' && document.getElementById('lowIncome')?.checked){ totalDeductions=totalIncome; }
-  const taxableIncome=Math.max(totalIncome-totalDeductions,0); const pit=calculatePIT(taxableIncome);
-  document.getElementById('totalIncome').innerText=totalIncome.toLocaleString();
-  document.getElementById('totalDeductions').innerText=totalDeductions.toLocaleString();
-  document.getElementById('reviewIncome').innerText=totalIncome.toLocaleString();
-  document.getElementById('reviewDeductions').innerText=totalDeductions.toLocaleString();
-  document.getElementById('reviewTaxable').innerText=taxableIncome.toLocaleString();
-  document.getElementById('reviewPIT').innerText=pit.toLocaleString();
-  document.getElementById('deductionBreakdown').innerHTML=breakdown;
-  window.__taxResult={totalIncome,totalDeductions,taxableIncome,pit,breakdown};
-}
-
-// PIT Nigerian 2026
-function calculatePIT(taxable){
-  if(taxable<=300000) return taxable*0.07;
-  if(taxable<=600000) return 21000+(taxable-300000)*0.11;
-  if(taxable<=1100000) return 54000+(taxable-600000)*0.15;
-  if(taxable<=1600000) return 129000+(taxable-1100000)*0.19;
-  if(taxable<=3200000) return 224000+(taxable-1600000)*0.21;
-  return 560000+(taxable-3200000)*0.24;
-}
-
-// Clear draft
-function clearDraft(){ localStorage.clear(); location.reload(); }
-
-// PDF
-function downloadPDF(){
-  import('https://cdn.jsdelivr.net/gh/parallax/jsPDF@2.5.1/dist/jspdf.umd.min.js').then(jsPDF=>{
-    const doc=new jsPDF.jsPDF(); const r=window.__taxResult;
-    doc.setFontSize(16); doc.text("Nigeria Tax Filing 2026",10,10);
-    doc.setFontSize(12); doc.text(`Stakeholder: ${taxpayerType}`,10,20);
-    doc.text(`Total Income: ₦${r.totalIncome.toLocaleString()}`,10,30);
-    doc.text(`Total Deductions: ₦${r.totalDeductions.toLocaleString()}`,10,40);
-    doc.text(`Taxable Income: ₦${r.taxableIncome.toLocaleString()}`,10,50);
-    doc.text(`PIT: ₦${r.pit.toLocaleString()}`,10,60);
-    let y=70;
-    for(const line of r.breakdown.split('</p>')){ if(line.trim()!==''){ doc.text(line.replace('<p>',''),10,y); y+=10; } }
-    doc.save('NigeriaTax2026.pdf');
-  });
-}
-</script>
+<script type="module" src="./assets/filingFlow.js"></script>
 </body>
 </html>
