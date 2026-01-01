@@ -1,7 +1,13 @@
 window.currentStep = 1;
 const totalSteps = 4;
 
-function saveDraft() {
+function updateProgress() {
+  for (let i = 1; i <= totalSteps; i++) {
+    document.getElementById(`prog${i}`).classList.toggle('active', i <= window.currentStep);
+  }
+}
+
+window.saveDraft = function() {
   const data = {
     grossIncome: document.getElementById("grossIncome")?.value || "",
     otherIncome: document.getElementById("otherIncome")?.value || "",
@@ -14,7 +20,12 @@ function saveDraft() {
   alert("Draft saved!");
 }
 
-function loadDraft() {
+window.clearDraft = function() {
+  localStorage.removeItem("taxDraft");
+  location.reload(); // refresh page
+}
+
+window.loadDraft = function() {
   const saved = JSON.parse(localStorage.getItem("taxDraft") || "{}");
   Object.keys(saved).forEach(key => {
     const el = document.getElementById(key);
@@ -22,35 +33,27 @@ function loadDraft() {
   });
 }
 
-window.clearDraft = function() {
-  localStorage.removeItem("taxDraft");
-  alert("Draft cleared!");
-};
-
 window.showStep = function(step) {
   for (let i = 1; i <= totalSteps; i++) {
     const el = document.getElementById(`step${i}`);
     if (!el) continue;
     el.classList.toggle("active", i === step);
   }
-};
+  updateProgress();
+}
 
 window.nextStep = function() {
-  if (window.currentStep < totalSteps) {
-    window.currentStep++;
-    window.showStep(window.currentStep);
-    if (window.currentStep === 4) populateReview();
-  }
+  if (window.currentStep < totalSteps) window.currentStep++;
+  window.showStep(window.currentStep);
+  if (window.currentStep === 4) populateReview();
   saveDraft();
-};
+}
 
 window.prevStep = function() {
-  if (window.currentStep > 1) {
-    window.currentStep--;
-    window.showStep(window.currentStep);
-  }
+  if (window.currentStep > 1) window.currentStep--;
+  window.showStep(window.currentStep);
   saveDraft();
-};
+}
 
 // PIT calculation with all deductions
 function calculatePIT(grossIncome, otherIncome, deductions) {
@@ -117,7 +120,7 @@ function populateReview() {
   `;
 }
 
-// Init
+// Initialize
 window.addEventListener("DOMContentLoaded", () => {
   loadDraft();
   window.showStep(window.currentStep);
