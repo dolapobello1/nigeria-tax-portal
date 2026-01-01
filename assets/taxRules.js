@@ -1,39 +1,21 @@
-// assets/taxRules.js
-import { CRA, MAX_RENT_RELIEF, PIT_BANDS, SME_TAX_RATE, CORPORATE_TAX_RATE } from './constants.js';
+import { CRA, MAX_RENT_RELIEF, PIT_BANDS, SME_RATE, CORPORATE_RATE } from './constants.js';
 
-// Calculate deductions
-export function calculateDeductions({ rentPaid, pension, nhf, insurance, nhis, lowIncome }) {
-    const rentRelief = Math.min(rentPaid * 0.2, MAX_RENT_RELIEF);
-
-    if (lowIncome) return { rentRelief, pension: 0, nhf: 0, insurance: 0, nhis: 0, total: 0 };
-
-    const total = rentRelief + pension + nhf + insurance + nhis;
-    return { rentRelief, pension, nhf, insurance, nhis, total };
-}
-
-// Calculate PIT for individuals
-export function calculatePIT(income, deductions, lowIncome) {
-    if (lowIncome || income <= CRA) return 0;
-
-    let taxable = income - deductions.total - CRA;
-    let remaining = taxable;
+export function calculateIndividualTax(income, deductions, hasCrypto=false, cryptoGains=0) {
+    const taxable = Math.max(0, income + (hasCrypto ? cryptoGains : 0) - deductions);
     let tax = 0;
-    let lowerLimit = 0;
-
-    for (const [upperLimit, rate] of PIT_BANDS) {
-        const taxableAtBand = Math.min(remaining, upperLimit - lowerLimit);
-        tax += taxableAtBand * rate;
-        remaining -= taxableAtBand;
-        lowerLimit = upperLimit;
-        if (remaining <= 0) break;
+    for (let [limit, rate] of PIT_BANDS) {
+        if(taxable <= limit) {
+            tax = taxable * rate;
+            break;
+        }
     }
-    return Math.round(tax);
+    return { taxable, tax };
 }
 
-// Calculate SME/Corporate tax
-export function calculateCorporateTax(profit, stakeholderType) {
-    if (stakeholderType === 'sme' || stakeholderType === 'corporate') {
-        return Math.round(profit * SME_TAX_RATE);
-    }
-    return 0;
+export function calculateSMETax(profit) {
+    return { taxable: profit, tax: profit * SME_RATE };
+}
+
+export function calculateCorporateTax(profit) {
+    return { taxable: profit, tax: profit * CORPORATE_RATE };
 }
