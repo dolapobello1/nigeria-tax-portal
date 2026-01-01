@@ -1,127 +1,116 @@
-window.currentStep = 1;
-const totalSteps = 4;
+// Get steps and current step index
+const steps = document.querySelectorAll(".form-section");
+let currentStep = 0;
 
-function updateProgress() {
-  for (let i = 1; i <= totalSteps; i++) {
-    document.getElementById(`prog${i}`).classList.toggle('active', i <= window.currentStep);
-  }
+// Load draft from localStorage
+const draft = JSON.parse(localStorage.getItem("taxDraft") || "{}");
+if (draft) populateDraft(draft);
+
+// Step navigation
+window.nextStep = (fromStep) => {
+    saveDraft();
+    if (currentStep < steps.length - 1) {
+        steps[currentStep].classList.remove("active");
+        currentStep++;
+        steps[currentStep].classList.add("active");
+        updateStepIndicator();
+        calculatePreview();
+    }
+};
+
+window.prevStep = (fromStep) => {
+    if (currentStep > 0) {
+        steps[currentStep].classList.remove("active");
+        currentStep--;
+        steps[currentStep].classList.add("active");
+        updateStepIndicator();
+    }
+};
+
+// Step indicator
+function updateStepIndicator() {
+    document.querySelectorAll(".step").forEach((el, i) => {
+        el.classList.remove("step-active", "step-completed");
+        if (i < currentStep) el.classList.add("step-completed");
+        else if (i === currentStep) el.classList.add("step-active");
+    });
 }
 
-window.saveDraft = function() {
-  const data = {
-    grossIncome: document.getElementById("grossIncome")?.value || "",
-    otherIncome: document.getElementById("otherIncome")?.value || "",
-    rentPaid: document.getElementById("rentPaid")?.value || "",
-    pensionNHF: document.getElementById("pensionNHF")?.value || "",
-    otherDeductions: document.getElementById("otherDeductions")?.value || "",
-    whtCredit: document.getElementById("whtCredit")?.value || ""
-  };
-  localStorage.setItem("taxDraft", JSON.stringify(data));
-  alert("Draft saved!");
+// Populate draft if exists
+function populateDraft(data) {
+    Object.keys(data).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = data[id];
+    });
+    calculatePreview();
 }
 
-window.clearDraft = function() {
-  localStorage.removeItem("taxDraft");
-  location.reload(); // refresh page
+// Save draft
+function saveDraft() {
+    const inputs = document.querySelectorAll("input, select");
+    const data = {};
+    inputs.forEach(i => data[i.id] = i.value);
+    localStorage.setItem("taxDraft", JSON.stringify(data));
 }
 
-window.loadDraft = function() {
-  const saved = JSON.parse(localStorage.getItem("taxDraft") || "{}");
-  Object.keys(saved).forEach(key => {
-    const el = document.getElementById(key);
-    if (el) el.value = saved[key];
-  });
+// Clear draft
+window.clearDraft = () => {
+    localStorage.removeItem("taxDraft");
+    location.reload();
 }
 
-window.showStep = function(step) {
-  for (let i = 1; i <= totalSteps; i++) {
-    const el = document.getElementById(`step${i}`);
-    if (!el) continue;
-    el.classList.toggle("active", i === step);
-  }
-  updateProgress();
+// Calculation
+window.calculatePreview = () => {
+    const grossIncome = parseFloat(document.getElementById("grossIncome").value) || 0;
+    const otherIncome = parseFloat(document.getElementById("otherIncome").value) || 0;
+    const rentPaid = parseFloat(document.getElementById("rentPaid").value) || 0;
+    const pensionNHF = parseFloat(document.getElementById("pensionNHF").value) || 0;
+    const otherDeductions = parseFloat(document.getElementById("otherDeductions")?.value || 0);
+
+    // Totals
+    const totalIncome = grossIncome + otherIncome;
+    const totalDeductions = rentPaid + pensionNHF + otherDeductions;
+
+    // Taxable income
+    const taxableIncome = Math.max(totalIncome - totalDeductions, 0);
+
+    // Simple PIT Example: 7% flat for demo
+    const pit = taxableIncome * 0.07;
+
+    // Save result for PDF
+    window.__taxResult = {
+        grossIncome, otherIncome, rentPaid, pensionNHF, otherDeductions,
+        totalIncome, totalDeductions, taxableIncome, pit
+    };
+
+    // Update UI
+    document.getElementById("totalIncome").textContent = `₦${totalIncome.toLocaleString()}`;
+    document.getElementById("totalDeductions").textContent = `₦${totalDeductions.toLocaleString()}`;
+
+    // Populate review
+    const reviewEl = document.getElementById("review");
+    if (reviewEl) {
+        reviewEl.innerHTML = `
+            <div><strong>Gross Income:</strong> ₦${totalIncome.toLocaleString()}</div>
+            <div><strong>Total Deductions:</strong> ₦${totalDeductions.toLocaleString()}</div>
+            <div><strong>Taxable Income:</strong> ₦${taxableIncome.toLocaleString()}</div>
+            <div><strong>PIT (7%):</strong> ₦${pit.toLocaleString()}</div>
+        `;
+    }
 }
 
-window.nextStep = function() {
-  if (window.currentStep < totalSteps) window.currentStep++;
-  window.showStep(window.currentStep);
-  if (window.currentStep === 4) populateReview();
-  saveDraft();
+// Update taxpayer type (show/hide company vs individual fields)
+window.updateTaxpayerType = () => {
+    const type = document.getElementById("taxpayerType").value;
+    if (type === "company") {
+        document.getElementById("fullName").placeholder = "Enter company name";
+    } else {
+        document.getElementById("fullName").placeholder = "Enter full name";
+    }
 }
 
-window.prevStep = function() {
-  if (window.currentStep > 1) window.currentStep--;
-  window.showStep(window.currentStep);
-  saveDraft();
-}
+// Optional: help popup
+window.showHelp = () => alert("Fill out the forms step by step. Click NEXT to proceed.");
 
-// PIT calculation with all deductions
-function calculatePIT(grossIncome, otherIncome, deductions) {
-  const totalIncome = grossIncome + otherIncome;
-  const totalDeductions = deductions.basicExemption + deductions.rentRelief + deductions.pensionNHF + deductions.other;
-  const taxable = Math.max(0, totalIncome - totalDeductions);
-
-  const bands = [
-    [2200000, 0.15],
-    [9000000, 0.18],
-    [13000000,0.21],
-    [25000000,0.23],
-    [Infinity,0.25]
-  ];
-
-  let remaining = taxable;
-  let tax = 0;
-  for (const [limit, rate] of bands) {
-    if (remaining <= 0) break;
-    const amount = Math.min(remaining, limit);
-    tax += amount * rate;
-    remaining -= amount;
-  }
-  return Math.round(tax);
-}
-
-function populateReview() {
-  const grossIncome = parseFloat(document.getElementById("grossIncome")?.value) || 0;
-  const otherIncome = parseFloat(document.getElementById("otherIncome")?.value) || 0;
-  const rentPaid = parseFloat(document.getElementById("rentPaid")?.value) || 0;
-  const pensionNHF = parseFloat(document.getElementById("pensionNHF")?.value) || 0;
-  const otherDeductions = parseFloat(document.getElementById("otherDeductions")?.value) || 0;
-  const whtCredit = parseFloat(document.getElementById("whtCredit")?.value) || 0;
-
-  const deductions = {
-    basicExemption: 800000,
-    rentRelief: Math.min(rentPaid * 0.2, 500000),
-    pensionNHF: pensionNHF,
-    other: otherDeductions
-  };
-
-  const taxAmount = calculatePIT(grossIncome, otherIncome, deductions);
-  const netTaxPayable = Math.max(0, taxAmount - whtCredit);
-
-  window.__taxResult = {
-    grossIncome, otherIncome, rentPaid, pensionNHF, otherDeductions, whtCredit,
-    deductions, taxAmount, netTaxPayable
-  };
-
-  const reviewEl = document.getElementById("review");
-  reviewEl.innerHTML = `
-    <p><strong>Gross Income:</strong> ₦${grossIncome.toLocaleString()}</p>
-    <p><strong>Other Income:</strong> ₦${otherIncome.toLocaleString()}</p>
-    <p><strong>Deductions:</strong></p>
-    <ul>
-      <li>Basic Exemption: ₦${deductions.basicExemption.toLocaleString()}</li>
-      <li>Rent Relief: ₦${deductions.rentRelief.toLocaleString()}</li>
-      <li>Pension + NHF: ₦${deductions.pensionNHF.toLocaleString()}</li>
-      <li>Other Deductions: ₦${deductions.other.toLocaleString()}</li>
-    </ul>
-    <p><strong>WHT Credit:</strong> ₦${whtCredit.toLocaleString()}</p>
-    <p class="mt-2 font-bold text-emerald-400"><strong>Total Tax:</strong> ₦${taxAmount.toLocaleString()}</p>
-    <p class="font-bold text-purple-400"><strong>Net Tax Payable:</strong> ₦${netTaxPayable.toLocaleString()}</p>
-  `;
-}
-
-// Initialize
-window.addEventListener("DOMContentLoaded", () => {
-  loadDraft();
-  window.showStep(window.currentStep);
-});
+// Initial calculation
+calculatePreview();
